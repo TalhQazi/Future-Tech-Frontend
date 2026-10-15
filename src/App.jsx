@@ -10,7 +10,9 @@ import { LandingPage } from './site/LandingPage.jsx';
 import { useHashRoute, appHref } from './router.js';
 import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
 
-const APP_TITLE = 'Shop OS | FutureTech 2.0';
+import { FutureTechOS } from './views/FutureTechOS.jsx';
+
+const APP_TITLE = 'Shop OS | FutureTech 2.0 AI';
 const SITE_TITLE = 'FutureTech 2.0 | Shop OS with Built-In Vehicle Diagnostics';
 
 const ShopApp = () => {
@@ -26,33 +28,11 @@ const ShopApp = () => {
   }, [currentUser.role]);
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" style={{ padding: 0, margin: 0, maxWidth: '100vw', background: '#070c16' }}>
       <a href="#app-main" className="skip-link">Skip to workspace</a>
 
-      {/* Sticky Shop Navigation Header */}
-      <Header onOpenCheckIn={() => setIsCheckInOpen(true)} />
-
-      {/* Main Shop View Area */}
-      <main id="app-main" className="app-main" key={currentUser.role} tabIndex={-1}>
-        {error && (
-          <div className="app-error" role="alert">
-            <AlertCircle size={18} aria-hidden="true" />
-            <span>{error}</span>
-          </div>
-        )}
-        {currentUser.role === 'advisor' && (
-          <AdvisorView onOpenCheckIn={() => setIsCheckInOpen(true)} />
-        )}
-        {currentUser.role === 'technician' && (
-          <TechnicianView />
-        )}
-        {currentUser.role === 'manager' && (
-          <ManagerView />
-        )}
-        {currentUser.role === 'customer' && (
-          <CustomerView />
-        )}
-      </main>
+      {/* Main Shop OS matching the photo */}
+      <FutureTechOS onOpenCheckIn={() => setIsCheckInOpen(true)} />
 
       {/* Check In Modal */}
       <CheckInModal
