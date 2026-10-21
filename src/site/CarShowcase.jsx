@@ -10,7 +10,9 @@ import {
   RotateCw,
   Box,
   Eye,
-  Layers
+  Layers,
+  Sparkles,
+  Camera
 } from 'lucide-react';
 import { Car3DCanvas } from './Car3DCanvas.jsx';
 import './car-animations.css';
@@ -86,8 +88,9 @@ const CAR_PROFILES = [
 
 export const CarShowcase = () => {
   const [selectedCarIndex, setSelectedCarIndex] = useState(0);
-  const [activeMode, setActiveMode] = useState('xray'); // 'xray' | 'aero' | 'track'
+  const [activeMode, setActiveMode] = useState('showroom'); // 'showroom' | 'xray' | 'aero' | 'track'
   const [viewDimension, setViewDimension] = useState('3d'); // '3d' | '2d'
+  const [cameraPreset, setCameraPreset] = useState('three-quarters'); // 'three-quarters' | 'side' | 'top' | 'rear'
   const [autoRotate, setAutoRotate] = useState(true);
   const [selectedHotspot, setSelectedHotspot] = useState(null);
   const [isThrottling, setIsThrottling] = useState(false);
@@ -138,9 +141,9 @@ export const CarShowcase = () => {
             </span>
           </div>
           <h2 id="car-showcase-heading" style={{ fontSize: 'clamp(2rem, 4vw, 3.2rem)', fontWeight: '800', letterSpacing: '-0.03em', color: '#ffffff', lineHeight: 1.15, margin: '0 0 1rem' }}>
-            Interactive 3D Vehicle Dynamics. <br />
+            Interactive 3D Supercar Visualizer. <br />
             <span style={{ background: 'linear-gradient(90deg, #00d2ff 0%, #7957ff 50%, #ff5d7d 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Rendered in real time with WebGL.
+              Real-time WebGL in the Center of the Screen.
             </span>
           </h2>
           <p style={{ fontSize: '1.05rem', color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
@@ -189,6 +192,13 @@ export const CarShowcase = () => {
           {/* Mode Switcher */}
           <div className="car-pills-group" role="tablist" aria-label="Visualizer view modes">
             <button
+              className={`car-pill-btn ${activeMode === 'showroom' ? 'active' : ''}`}
+              onClick={() => setActiveMode('showroom')}
+            >
+              <Sparkles size={15} />
+              <span>Showroom 3D</span>
+            </button>
+            <button
               className={`car-pill-btn ${activeMode === 'xray' ? 'active' : ''}`}
               onClick={() => setActiveMode('xray')}
             >
@@ -213,10 +223,10 @@ export const CarShowcase = () => {
         </div>
 
         {/* Main Stage Card */}
-        <div className="car-stage-card">
+        <div className="car-stage-card" style={{ padding: '2rem 1.8rem 1.8rem' }}>
           {/* Telemetry Ticker Top Bar */}
           <div className="car-telemetry-ticker">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               <span className="car-badge-live">
                 <span className="car-live-dot" /> CAN-FD 5.0 Mbps
               </span>
@@ -224,7 +234,7 @@ export const CarShowcase = () => {
               <span style={{ display: 'inline-block', width: '1px', height: '14px', background: 'rgba(255,255,255,0.1)' }} />
               <span style={{ color: '#00d2ff' }}>{car.category}</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               {viewDimension === '3d' && (
                 <button
                   type="button"
@@ -252,73 +262,88 @@ export const CarShowcase = () => {
           </div>
 
           {/* Center Visual Viewport */}
-          <div className="car-visual-viewport" style={{ position: 'relative', overflow: 'hidden', borderRadius: '16px' }}>
+          <div 
+            className="car-visual-viewport" 
+            style={{ 
+              position: 'relative', 
+              overflow: 'hidden', 
+              borderRadius: '20px', 
+              minHeight: '520px',
+              background: 'radial-gradient(ellipse at 50% 50%, rgba(14, 22, 44, 0.6) 0%, rgba(5, 8, 18, 0.95) 100%)',
+              border: '1px solid rgba(0, 210, 255, 0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
             {viewDimension === '3d' ? (
               /* REAL-TIME 3D WEBGL RENDERING */
-              <div style={{ width: '100%', position: 'relative' }}>
+              <div style={{ width: '100%', height: '100%', position: 'relative' }}>
                 <Car3DCanvas
                   carType={car.id}
                   mode={activeMode}
                   isThrottling={isThrottling}
                   speed={speed}
                   autoRotate={autoRotate}
+                  cameraPreset={cameraPreset}
                 />
                 
                 {/* 3D Orbit Drag Hint Badge */}
                 <div style={{
                   position: 'absolute',
-                  top: '12px',
-                  left: '12px',
-                  padding: '6px 12px',
+                  top: '16px',
+                  left: '16px',
+                  padding: '6px 14px',
                   borderRadius: '20px',
-                  background: 'rgba(8, 12, 24, 0.75)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(0, 210, 255, 0.3)',
+                  background: 'rgba(8, 12, 24, 0.82)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(0, 210, 255, 0.35)',
                   color: '#00d2ff',
-                  fontSize: '0.75rem',
+                  fontSize: '0.78rem',
                   fontWeight: '600',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  pointerEvents: 'none'
+                  pointerEvents: 'none',
+                  zIndex: 10
                 }}>
-                  <Eye size={13} />
+                  <Eye size={14} />
                   <span>Click & Drag to Rotate 360° in 3D</span>
                 </div>
 
-                {/* 3D Component Inspection Selector Pills */}
+                {/* 3D Camera Angle Preset Buttons */}
                 <div style={{
                   position: 'absolute',
-                  bottom: '12px',
-                  left: '12px',
+                  top: '16px',
+                  right: '16px',
                   display: 'flex',
-                  flexWrap: 'wrap',
                   gap: '6px',
-                  maxWidth: '75%',
-                  zIndex: 20
+                  zIndex: 15
                 }}>
-                  {car.hotspots.map((h) => (
+                  {[
+                    { id: 'three-quarters', label: '3/4 Angle' },
+                    { id: 'side', label: 'Side Profile' },
+                    { id: 'top', label: 'Overhead' },
+                    { id: 'rear', label: 'Rear Diffuser' }
+                  ].map(preset => (
                     <button
-                      key={h.id}
-                      onClick={() => setSelectedHotspot(h)}
+                      key={preset.id}
+                      type="button"
+                      onClick={() => setCameraPreset(preset.id)}
                       style={{
-                        background: selectedHotspot?.id === h.id ? '#00d2ff' : 'rgba(8, 14, 28, 0.85)',
-                        color: selectedHotspot?.id === h.id ? '#050a17' : '#94a3b8',
-                        border: `1px solid ${selectedHotspot?.id === h.id ? '#00d2ff' : 'rgba(255,255,255,0.12)'}`,
-                        borderRadius: '8px',
-                        padding: '4px 10px',
-                        fontSize: '0.75rem',
+                        padding: '4px 9px',
+                        borderRadius: '6px',
+                        border: `1px solid ${cameraPreset === preset.id ? '#00d2ff' : 'rgba(255,255,255,0.12)'}`,
+                        background: cameraPreset === preset.id ? 'rgba(0, 210, 255, 0.2)' : 'rgba(10, 15, 30, 0.8)',
+                        color: cameraPreset === preset.id ? '#00d2ff' : '#94a3b8',
+                        fontSize: '0.72rem',
                         fontWeight: '600',
                         cursor: 'pointer',
-                        backdropFilter: 'blur(8px)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
+                        backdropFilter: 'blur(10px)',
                         transition: 'all 0.2s ease'
                       }}
                     >
-                      <Cpu size={11} />
-                      <span>{h.label.split(' ')[0]}</span>
+                      {preset.label}
                     </button>
                   ))}
                 </div>
@@ -402,7 +427,7 @@ export const CarShowcase = () => {
 
             {/* Hotspot Inspection Popover Drawer */}
             {selectedHotspot && (
-              <div className="car-hotspot-drawer">
+              <div className="car-hotspot-drawer" style={{ zIndex: 50 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.6rem' }}>
                   <div>
                     <span style={{ fontSize: '0.7rem', color: '#00d2ff', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
@@ -437,6 +462,50 @@ export const CarShowcase = () => {
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Component Inspection Bar Directly Below Centered Viewport */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '10px',
+            marginTop: '1.25rem',
+            padding: '0.75rem 1rem',
+            background: 'rgba(10, 16, 32, 0.6)',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.06)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#94a3b8' }}>
+              <Cpu size={14} style={{ color: '#00d2ff' }} />
+              <span style={{ fontWeight: '600' }}>INSPECT SYSTEMS:</span>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {car.hotspots.map((h) => (
+                <button
+                  key={h.id}
+                  type="button"
+                  onClick={() => setSelectedHotspot(h)}
+                  style={{
+                    background: selectedHotspot?.id === h.id ? '#00d2ff' : 'rgba(255, 255, 255, 0.05)',
+                    color: selectedHotspot?.id === h.id ? '#050a17' : '#cbd5e1',
+                    border: `1px solid ${selectedHotspot?.id === h.id ? '#00d2ff' : 'rgba(255, 255, 255, 0.1)'}`,
+                    borderRadius: '8px',
+                    padding: '5px 12px',
+                    fontSize: '0.78rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <span>{h.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Bottom Live Telemetry Dashboard */}
