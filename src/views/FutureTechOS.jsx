@@ -721,32 +721,42 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
                     <span className="ft-card-title">Membership Status</span>
                   </div>
 
-                  <div className="ft-member-status-header">
-                    <div className="ft-member-plan-name">
-                      <ShieldCheck size={16} className="ft-member-pin-icon" />
-                      <span>{currentCustomer.membership?.tier || 'VIP Gold Care'}</span>
+                  {!currentCustomer ? (
+                    <div style={{ textAlign: 'center', padding: '28px 12px', color: '#8fa0c0', fontSize: '13px' }}>
+                      <ShieldCheck size={28} style={{ color: '#00d2ff', margin: '0 auto 8px', display: 'block' }} />
+                      <div style={{ color: '#fff', fontWeight: '700', marginBottom: '4px' }}>No Active Member Selected</div>
+                      <div style={{ fontSize: '12px', lineHeight: 1.4 }}>Customer membership tier and benefits will reflect here when a vehicle repair order is open.</div>
                     </div>
-                    <span className="ft-pill-green">Active</span>
-                  </div>
+                  ) : (
+                    <>
+                      <div className="ft-member-status-header">
+                        <div className="ft-member-plan-name">
+                          <ShieldCheck size={16} className="ft-member-pin-icon" />
+                          <span>{currentCustomer?.membership?.tier || 'VIP Gold Care'}</span>
+                        </div>
+                        <span className="ft-pill-green">Active</span>
+                      </div>
 
-                  <div className="ft-member-renew-date">
-                    Renews {currentCustomer.membership?.renewDate || 'Jan 15, 2027'}
-                  </div>
+                      <div className="ft-member-renew-date">
+                        Renews {currentCustomer?.membership?.renewDate || 'Jan 15, 2027'}
+                      </div>
 
-                  <ul className="ft-member-perks-list">
-                    {(currentCustomer.membership?.benefits || [
-                      '$0 Diagnostic Fee',
-                      'Included Inspections',
-                      'Preferred Scheduling',
-                      '15% Off Repairs',
-                      'Roadside Assistance'
-                    ]).map((perk, i) => (
-                      <li key={i} className="ft-member-perk-item">
-                        <CheckCircle2 size={13} className="ft-perk-check" />
-                        <span>{perk}</span>
-                      </li>
-                    ))}
-                  </ul>
+                      <ul className="ft-member-perks-list">
+                        {(currentCustomer?.membership?.benefits || [
+                          '$0 Diagnostic Fee',
+                          'Included Inspections',
+                          'Preferred Scheduling',
+                          '15% Off Repairs',
+                          'Roadside Assistance'
+                        ]).map((perk, i) => (
+                          <li key={i} className="ft-member-perk-item">
+                            <CheckCircle2 size={13} className="ft-perk-check" />
+                            <span>{perk}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
                 </article>
 
                 {/* Quick Actions Card */}
@@ -1180,7 +1190,7 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
             </div>
 
             <p style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '1.2rem' }}>
-              Real-time telemetry and deep OBD-II stream for <strong>{currentVehicle.year} {currentVehicle.make} {currentVehicle.model}</strong> (VIN: {currentVehicle.vin}).
+              Real-time telemetry and deep OBD-II stream for <strong>{currentVehicle?.year || ''} {currentVehicle?.make || ''} {currentVehicle?.model || 'Vehicle'}</strong> (VIN: {currentVehicle?.vin || 'Standby'}).
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '1.2rem' }}>
