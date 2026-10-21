@@ -12,115 +12,117 @@ import {
   Eye,
   Layers,
   Sparkles,
-  Camera
+  Palette
 } from 'lucide-react';
 import { Car3DCanvas } from './Car3DCanvas.jsx';
 import './car-animations.css';
 
-// 4 Hyper-realistic futuristic car specs
-const CAR_PROFILES = [
-  {
-    id: 'apex-gt',
-    name: 'Apex GT Hypercar',
-    category: 'Twin-Turbo V8 Hybrid · 1,020 HP',
-    type: 'Coupe / Track Spec',
-    speedMax: 218,
-    rpmMax: 8800,
-    downforce: '580 kg @ 160 mph',
-    dragCd: '0.24 Cd',
-    hotspots: [
-      { id: 'engine', label: '4.0L Twin-Turbo Hybrid V8', status: 'Optimal', temp: '94°C', psi: '2.4 Bar Boost' },
-      { id: 'brakes-front', label: 'Carbon-Ceramic Rotors (410mm)', status: 'Nominal', temp: '320°C', life: '92%' },
-      { id: 'brakes-rear', label: 'Rear Active Calipers', status: 'Nominal', temp: '280°C', life: '94%' },
-      { id: 'lidar', label: 'Front Solid-State LiDAR', status: 'Active', range: '250m Scan', fov: '120°' },
-      { id: 'aero-wing', label: 'Active Carbon DRS Wing', status: 'Dynamic', angle: '18° Attack', downforce: '280 kg' }
-    ]
+// Iconic Bugatti Chiron Dual-Tone Liveries
+const BUGATTI_LIVERIES = [
+  { 
+    id: 'french-racing', 
+    name: 'French Racing Blue & Atlantic Navy', 
+    primary: '#0088ff', 
+    secondary: '#071838', 
+    badge: '🇫🇷 Iconic' 
   },
-  {
-    id: 'cyber-pulse',
-    name: 'CyberPulse EV Sedan',
-    category: 'Tri-Motor 800V AWD · 760 kW',
-    type: 'Next-Gen Electric GT',
-    speedMax: 195,
-    rpmMax: 18500,
-    downforce: '340 kg @ 140 mph',
-    dragCd: '0.208 Cd',
-    hotspots: [
-      { id: 'battery', label: '98 kWh Solid-State Battery Floor', status: 'SOC 88%', temp: '32°C', health: '99.4%' },
-      { id: 'inverter-front', label: 'Silicon Carbide (SiC) Inverter', status: '98.6% Eff', voltage: '812 VDC' },
-      { id: 'inverter-rear', label: 'Dual Rear PMSM Motors', status: 'Torque Vectoring', nm: '1,150 Nm' },
-      { id: 'camera-suite', label: 'Autonomous Vision 360°', status: 'L3 Enabled', latency: '4ms' }
-    ]
+  { 
+    id: 'rosso-sang', 
+    name: 'Rosso Pur Sang & Nocturne Carbon', 
+    primary: '#ff1744', 
+    secondary: '#0e131d', 
+    badge: '🔴 Heritage' 
   },
-  {
-    id: 'titan-recon',
-    name: 'Titan Recon Overlander',
-    category: 'Quad-Motor Active Hydraulic Lift',
-    type: 'Tactical Cyber SUV',
-    speedMax: 155,
-    rpmMax: 12000,
-    downforce: 'Active Leveling',
-    dragCd: '0.31 Cd',
-    hotspots: [
-      { id: 'air-suspension', label: 'Hydropneumatic Variable Ride', status: 'Lift +60mm', damping: 'Adaptive' },
-      { id: 'quad-powertrain', label: 'Independent 4-Wheel Torque', status: 'Crawl Mode', slip: '0.2%' },
-      { id: 'aux-radar', label: 'Forward Ground Penetrating Radar', status: 'Terrain Scan', depth: '1.5m' },
-      { id: 'roof-pods', label: 'Telemetry Satellite Link', status: '5G / Starlink', ping: '18ms' }
-    ]
+  { 
+    id: 'super-sport', 
+    name: 'Super Sport 300+ Jet Orange & Carbon', 
+    primary: '#ff5c00', 
+    secondary: '#0a0d14', 
+    badge: '🟠 304 MPH' 
   },
-  {
-    id: 'formula-spec',
-    name: 'Formula Prototype LMP',
-    category: 'Carbon Monocoque · Ground Effect Venturi',
-    type: 'Le Mans Prototype',
-    speedMax: 235,
-    rpmMax: 10500,
-    downforce: '920 kg @ 180 mph',
-    dragCd: '0.29 Cd',
-    hotspots: [
-      { id: 'monocoque', label: 'T1000 Carbon Monocoque', status: 'Torsional 45kNm/deg', integrity: '100%' },
-      { id: 'venturi-tunnel', label: 'Underbody Venturi Tunnels', status: 'Ground Effect', suction: '-4.2 kPa' },
-      { id: 'shark-fin', label: 'Dorsal Stabilizer Fin', status: 'Yaw Control', yawRate: '0.04 rad/s' },
-      { id: 'front-wing', label: 'Multi-Element Carbon Wing', status: 'Vortex Tuned', vortices: 'Stable' }
-    ]
+  { 
+    id: 'sprint-yellow', 
+    name: 'Chiron Pur Sport Sprint Yellow', 
+    primary: '#ffc800', 
+    secondary: '#101724', 
+    badge: '🟡 Track' 
+  },
+  { 
+    id: 'glacier-white', 
+    name: 'Hermes Edition Glacier White & Navy', 
+    primary: '#f8fafc', 
+    secondary: '#0a1a36', 
+    badge: '⚪ Luxury' 
+  },
+  { 
+    id: 'mamba-emerald', 
+    name: 'Mamba Emerald & Deep Carbon', 
+    primary: '#00e676', 
+    secondary: '#0c161c', 
+    badge: '🟢 Exotic' 
+  },
+  { 
+    id: 'royal-violet', 
+    name: 'Royal Ultra Violet & Obsidian', 
+    primary: '#9333ea', 
+    secondary: '#090d16', 
+    badge: '🟣 Bespoke' 
   }
 ];
 
+// Bugatti Chiron Pur Sport Diagnostics Specifications
+const CHIRON_SPECS = {
+  name: 'Bugatti Chiron Pur Sport',
+  category: '8.0L Quad-Turbo W16 · 1,500 HP · 1,600 Nm',
+  type: 'Quad-Turbo Hypercar',
+  speedMax: 261,
+  rpmMax: 7000,
+  downforce: '450 kg @ 217 mph',
+  dragCd: '0.35 Cd',
+  hotspots: [
+    { id: 'w16', label: '8.0L Quad-Turbo W16 Engine', status: 'Optimal', temp: '96°C', psi: '2.85 Bar Quad-Boost' },
+    { id: 'brakes-front', label: 'Carbon-Silicon Carbide 420mm Brakes', status: 'Nominal', temp: '340°C', life: '96%' },
+    { id: 'trans', label: '7-Speed Dual-Clutch Ricardo Gearbox', status: 'Torque 1,600Nm', latency: '2ms Shift' },
+    { id: 'radar', label: 'Solid-State LiDAR & Telemetry Pod', status: 'Active CAN-FD', range: '300m Scan' },
+    { id: 'airbrake', label: 'Active Hydraulic Aero Wing & Airbrake', status: 'Active 24° Attack', downforce: '450 kg' }
+  ]
+};
+
 export const CarShowcase = () => {
-  const [selectedCarIndex, setSelectedCarIndex] = useState(0);
+  const [activeLiveryIndex, setActiveLiveryIndex] = useState(0);
   const [activeMode, setActiveMode] = useState('showroom'); // 'showroom' | 'xray' | 'aero' | 'track'
   const [viewDimension, setViewDimension] = useState('3d'); // '3d' | '2d'
   const [cameraPreset, setCameraPreset] = useState('three-quarters'); // 'three-quarters' | 'side' | 'top' | 'rear'
   const [autoRotate, setAutoRotate] = useState(true);
   const [selectedHotspot, setSelectedHotspot] = useState(null);
   const [isThrottling, setIsThrottling] = useState(false);
-  const [speed, setSpeed] = useState(65);
-  const [rpm, setRpm] = useState(3200);
-  const [boost, setBoost] = useState(1.1);
-  const [canFramesCount, setCanFramesCount] = useState(48290);
+  const [speed, setSpeed] = useState(72);
+  const [rpm, setRpm] = useState(2600);
+  const [boost, setBoost] = useState(1.4);
+  const [canFramesCount, setCanFramesCount] = useState(64820);
 
-  const car = CAR_PROFILES[selectedCarIndex];
+  const livery = BUGATTI_LIVERIES[activeLiveryIndex];
 
-  // Dynamic throttle acceleration physics simulation
+  // Dynamic W16 throttle acceleration physics simulation
   useEffect(() => {
     let interval = null;
     if (isThrottling) {
       interval = setInterval(() => {
-        setSpeed(prev => Math.min(prev + Math.floor(Math.random() * 6 + 4), car.speedMax));
-        setRpm(prev => Math.min(prev + Math.floor(Math.random() * 250 + 180), car.rpmMax));
-        setBoost(prev => Math.min(Number((prev + 0.12).toFixed(2)), 2.8));
-        setCanFramesCount(c => c + 34);
+        setSpeed(prev => Math.min(prev + Math.floor(Math.random() * 8 + 5), CHIRON_SPECS.speedMax));
+        setRpm(prev => Math.min(prev + Math.floor(Math.random() * 220 + 150), CHIRON_SPECS.rpmMax));
+        setBoost(prev => Math.min(Number((prev + 0.15).toFixed(2)), 2.85));
+        setCanFramesCount(c => c + 42);
       }, 70);
     } else {
       interval = setInterval(() => {
-        setSpeed(prev => Math.max(prev - 3, 58));
-        setRpm(prev => Math.max(prev - 120, 2400));
-        setBoost(prev => Math.max(Number((prev - 0.08).toFixed(2)), 0.6));
+        setSpeed(prev => Math.max(prev - 3, 65));
+        setRpm(prev => Math.max(prev - 110, 2200));
+        setBoost(prev => Math.max(Number((prev - 0.09).toFixed(2)), 0.8));
         setCanFramesCount(c => c + 4);
       }, 100);
     }
     return () => clearInterval(interval);
-  }, [isThrottling, car.speedMax, car.rpmMax]);
+  }, [isThrottling]);
 
   return (
     <section className="car-showcase-section" id="vehicle-dynamics" aria-labelledby="car-showcase-heading">
@@ -133,42 +135,93 @@ export const CarShowcase = () => {
 
       <div className="container" style={{ position: 'relative', zIndex: 10 }}>
         {/* Section Header */}
-        <div style={{ textAlign: 'center', maxWidth: '840px', margin: '0 auto 2.5rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '6px 14px', borderRadius: '20px', background: 'rgba(0, 210, 255, 0.08)', border: '1px solid rgba(0, 210, 255, 0.25)', marginBottom: '1rem' }}>
-            <Activity size={15} style={{ color: '#00d2ff' }} />
-            <span style={{ fontSize: '0.8rem', fontWeight: '700', letterSpacing: '0.08em', color: '#00d2ff', textTransform: 'uppercase' }}>
-              True 3D Interactive Telematics Engine
+        <div style={{ textAlign: 'center', maxWidth: '860px', margin: '0 auto 2.2rem' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '6px 16px', borderRadius: '20px', background: 'rgba(0, 168, 255, 0.1)', border: '1px solid rgba(0, 168, 255, 0.3)', marginBottom: '1rem' }}>
+            <Activity size={15} style={{ color: '#00a8ff' }} />
+            <span style={{ fontSize: '0.8rem', fontWeight: '700', letterSpacing: '0.08em', color: '#00a8ff', textTransform: 'uppercase' }}>
+              Bugatti Chiron W16 Telematics Engine
             </span>
           </div>
-          <h2 id="car-showcase-heading" style={{ fontSize: 'clamp(2rem, 4vw, 3.2rem)', fontWeight: '800', letterSpacing: '-0.03em', color: '#ffffff', lineHeight: 1.15, margin: '0 0 1rem' }}>
-            Interactive 3D Supercar Visualizer. <br />
-            <span style={{ background: 'linear-gradient(90deg, #00d2ff 0%, #7957ff 50%, #ff5d7d 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Real-time WebGL in the Center of the Screen.
+          <h2 id="car-showcase-heading" style={{ fontSize: 'clamp(2.1rem, 4.2vw, 3.3rem)', fontWeight: '800', letterSpacing: '-0.03em', color: '#ffffff', lineHeight: 1.15, margin: '0 0 1rem' }}>
+            Bugatti Chiron Interactive 3D Visualizer. <br />
+            <span style={{ background: 'linear-gradient(90deg, #0088ff 0%, #00e5ff 40%, #ff1744 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Real-Time CAN-FD Bus & 1,500 HP W16 Subsystems.
             </span>
           </h2>
           <p style={{ fontSize: '1.05rem', color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
-            Inspect full 360° rotating chassis models, internal high-voltage powertrain schematics, and live 3D aerodynamic wind-tunnel particle simulations. Click and drag anywhere to orbit in 3D.
+            Inspect the 1,500 HP Quad-Turbo French Hypercar in 360° 3D. Rotate the chassis, switch signature Bugatti dual-tone liveries, inspect the W16 engine core, and launch active telemetry in real time.
           </p>
         </div>
 
-        {/* Vehicle Selection & Mode Switchers Bar */}
-        <div className="car-controls-bar">
-          {/* Select Car Architecture */}
-          <div className="car-pills-group" role="tablist" aria-label="Select vehicle architecture">
-            {CAR_PROFILES.map((c, i) => (
+        {/* Real-Time Bugatti Dual-Tone Livery Selector Bar */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '14px',
+          flexWrap: 'wrap',
+          margin: '0 auto 1.75rem',
+          padding: '10px 20px',
+          background: 'rgba(10, 16, 32, 0.85)',
+          backdropFilter: 'blur(16px)',
+          borderRadius: '35px',
+          border: '1px solid rgba(0, 168, 255, 0.25)',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
+          width: 'fit-content'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: '700', color: '#00a8ff' }}>
+            <Palette size={15} />
+            <span>BUGATTI LIVERY:</span>
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {BUGATTI_LIVERIES.map((liv, idx) => (
               <button
-                key={c.id}
-                role="tab"
-                aria-selected={selectedCarIndex === i}
-                className={`car-pill-btn ${selectedCarIndex === i ? 'active' : ''}`}
-                onClick={() => {
-                  setSelectedCarIndex(i);
-                  setSelectedHotspot(null);
+                key={liv.id}
+                type="button"
+                title={liv.name}
+                onClick={() => setActiveLiveryIndex(idx)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '5px 12px',
+                  borderRadius: '20px',
+                  border: activeLiveryIndex === idx ? '2px solid #00d2ff' : '1px solid rgba(255, 255, 255, 0.15)',
+                  background: activeLiveryIndex === idx ? 'rgba(0, 168, 255, 0.18)' : 'rgba(255, 255, 255, 0.04)',
+                  color: activeLiveryIndex === idx ? '#ffffff' : '#94a3b8',
+                  fontSize: '0.78rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}
               >
-                <span>{c.name}</span>
+                {/* Dual-Tone Circle Swatch */}
+                <span style={{
+                  display: 'inline-block',
+                  width: '18px',
+                  height: '18px',
+                  borderRadius: '50%',
+                  background: `linear-gradient(135deg, ${liv.primary} 50%, ${liv.secondary} 50%)`,
+                  border: '1.5px solid rgba(255, 255, 255, 0.4)',
+                  boxShadow: activeLiveryIndex === idx ? `0 0 10px ${liv.primary}` : 'none'
+                }} />
+                <span>{liv.badge}</span>
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* Vehicle Mode Switchers Bar */}
+        <div className="car-controls-bar">
+          {/* Active Vehicle Spec Badge */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontWeight: '800', color: '#fff', fontSize: '1rem', letterSpacing: '-0.01em' }}>
+              BUGATTI CHIRON PUR SPORT
+            </span>
+            <span style={{ background: 'rgba(0, 168, 255, 0.12)', color: '#00a8ff', padding: '3px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '700' }}>
+              W16 QUAD-TURBO
+            </span>
           </div>
 
           {/* 3D vs 2D Toggle */}
@@ -230,9 +283,9 @@ export const CarShowcase = () => {
               <span className="car-badge-live">
                 <span className="car-live-dot" /> CAN-FD 5.0 Mbps
               </span>
-              <span>3D CHASSIS: <strong style={{ color: '#fff' }}>{car.name.toUpperCase()}</strong></span>
+              <span>HYPERCAR: <strong style={{ color: '#fff' }}>BUGATTI CHIRON PUR SPORT</strong></span>
               <span style={{ display: 'inline-block', width: '1px', height: '14px', background: 'rgba(255,255,255,0.1)' }} />
-              <span style={{ color: '#00d2ff' }}>{car.category}</span>
+              <span style={{ color: '#00a8ff' }}>{livery.name}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               {viewDimension === '3d' && (
@@ -269,18 +322,20 @@ export const CarShowcase = () => {
               overflow: 'hidden', 
               borderRadius: '20px', 
               minHeight: '520px',
-              background: 'radial-gradient(ellipse at 50% 50%, rgba(14, 22, 44, 0.6) 0%, rgba(5, 8, 18, 0.95) 100%)',
-              border: '1px solid rgba(0, 210, 255, 0.15)',
+              background: 'radial-gradient(ellipse at 50% 50%, rgba(14, 24, 48, 0.7) 0%, rgba(5, 8, 18, 0.98) 100%)',
+              border: '1px solid rgba(0, 168, 255, 0.2)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}
           >
             {viewDimension === '3d' ? (
-              /* REAL-TIME 3D WEBGL RENDERING */
+              /* REAL-TIME 3D WEBGL BUGATTI CHIRON RENDERING */
               <div style={{ width: '100%', height: '100%', position: 'relative' }}>
                 <Car3DCanvas
-                  carType={car.id}
+                  carType="chiron"
+                  primaryColor={livery.primary}
+                  secondaryColor={livery.secondary}
                   mode={activeMode}
                   isThrottling={isThrottling}
                   speed={speed}
@@ -295,10 +350,10 @@ export const CarShowcase = () => {
                   left: '16px',
                   padding: '6px 14px',
                   borderRadius: '20px',
-                  background: 'rgba(8, 12, 24, 0.82)',
+                  background: 'rgba(8, 12, 24, 0.85)',
                   backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(0, 210, 255, 0.35)',
-                  color: '#00d2ff',
+                  border: '1px solid rgba(0, 168, 255, 0.4)',
+                  color: '#00a8ff',
                   fontSize: '0.78rem',
                   fontWeight: '600',
                   display: 'flex',
@@ -308,7 +363,7 @@ export const CarShowcase = () => {
                   zIndex: 10
                 }}>
                   <Eye size={14} />
-                  <span>Click & Drag to Rotate 360° in 3D</span>
+                  <span>Click & Drag to Rotate Bugatti Chiron 360°</span>
                 </div>
 
                 {/* 3D Camera Angle Preset Buttons */}
@@ -322,19 +377,19 @@ export const CarShowcase = () => {
                 }}>
                   {[
                     { id: 'three-quarters', label: '3/4 Angle' },
-                    { id: 'side', label: 'Side Profile' },
-                    { id: 'top', label: 'Overhead' },
-                    { id: 'rear', label: 'Rear Diffuser' }
+                    { id: 'side', label: 'Side C-Line' },
+                    { id: 'top', label: 'Overhead W16' },
+                    { id: 'rear', label: 'Rear Blade' }
                   ].map(preset => (
                     <button
                       key={preset.id}
                       type="button"
                       onClick={() => setCameraPreset(preset.id)}
                       style={{
-                        padding: '4px 9px',
+                        padding: '4px 10px',
                         borderRadius: '6px',
-                        border: `1px solid ${cameraPreset === preset.id ? '#00d2ff' : 'rgba(255,255,255,0.12)'}`,
-                        background: cameraPreset === preset.id ? 'rgba(0, 210, 255, 0.2)' : 'rgba(10, 15, 30, 0.8)',
+                        border: `1px solid ${cameraPreset === preset.id ? '#00a8ff' : 'rgba(255,255,255,0.12)'}`,
+                        background: cameraPreset === preset.id ? 'rgba(0, 168, 255, 0.25)' : 'rgba(10, 15, 30, 0.8)',
                         color: cameraPreset === preset.id ? '#00d2ff' : '#94a3b8',
                         fontSize: '0.72rem',
                         fontWeight: '600',
@@ -349,78 +404,24 @@ export const CarShowcase = () => {
                 </div>
               </div>
             ) : (
-              /* 2D BLUEPRINT & SCHEMATIC VIEW */
+              /* 2D BLUEPRINT VIEW */
               <div style={{ width: '100%', position: 'relative' }}>
                 <div className={`car-road-perspective ${activeMode === 'track' || isThrottling ? 'speed-active' : ''}`} />
                 {activeMode === 'xray' && <div className="car-scanner-laser" />}
                 <div className="car-headlight-beam" />
                 <div className="car-taillight-glow" />
 
-                {activeMode === 'aero' && (
-                  <svg className="car-aero-stream" viewBox="0 0 1000 400" preserveAspectRatio="none" style={{ width: '100%', height: '100%' }}>
-                    <defs>
-                      <linearGradient id="aero-grad" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="rgba(0, 210, 255, 0)" />
-                        <stop offset="25%" stopColor="rgba(0, 210, 255, 0.85)" />
-                        <stop offset="70%" stopColor="rgba(121, 87, 255, 0.9)" />
-                        <stop offset="100%" stopColor="rgba(255, 93, 125, 0.1)" />
-                      </linearGradient>
-                    </defs>
-                    <path d="M 960 210 C 850 205, 780 180, 680 130 C 580 80, 420 85, 340 120 C 260 160, 180 190, 40 215" />
-                    <path d="M 960 240 C 830 235, 760 220, 690 190 C 600 150, 450 145, 360 165 C 280 190, 200 230, 40 250" style={{ animationDelay: '-0.4s' }} />
-                    <path d="M 960 270 C 800 270, 720 280, 640 285 C 500 290, 320 290, 220 285 C 150 280, 90 275, 40 270" style={{ animationDelay: '-0.8s' }} />
-                  </svg>
-                )}
-
-                <svg 
-                  viewBox="0 0 1000 420" 
-                  style={{ width: '100%', maxWidth: '920px', height: 'auto', zIndex: 10 }}
-                >
-                  <defs>
-                    <linearGradient id="carBodyGrad" x1="0" y1="0" x2="1" y2="0.6">
-                      <stop offset="0%" stopColor="#0c142b" />
-                      <stop offset="40%" stopColor="#132042" />
-                      <stop offset="70%" stopColor="#1a2d5e" />
-                      <stop offset="100%" stopColor="#091226" />
-                    </linearGradient>
-                    <linearGradient id="neonCyan" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#7957ff" />
-                      <stop offset="50%" stopColor="#00d2ff" />
-                      <stop offset="100%" stopColor="#36d6f5" />
-                    </linearGradient>
-                  </defs>
-
+                <svg viewBox="0 0 1000 420" style={{ width: '100%', maxWidth: '920px', height: 'auto', zIndex: 10 }}>
                   <ellipse cx="500" cy="335" rx="420" ry="24" fill="rgba(0, 0, 0, 0.75)" />
+                  {/* Bugatti Chiron Side Silhouette with C-Line */}
                   <path 
-                    d="M 110 270 C 105 240, 115 210, 140 195 C 180 190, 215 155, 275 140 C 365 118, 510 115, 620 150 C 720 185, 785 210, 835 225 C 870 235, 885 255, 875 275 L 865 292 C 830 292, 805 245, 745 245 C 685 245, 660 292, 625 292 L 375 292 C 340 292, 315 245, 255 245 C 195 245, 170 292, 135 292 Z" 
+                    d="M 110 270 C 105 240, 115 210, 140 195 C 180 190, 215 155, 275 140 C 365 118, 510 115, 620 150 C 720 185, 785 210, 835 225 C 870 235, 885 255, 875 275 L 865 292 L 135 292 Z" 
                     fill="url(#carBodyGrad)" 
-                    stroke="url(#neonCyan)" 
+                    stroke="#00a8ff" 
                     strokeWidth="2.5"
                   />
-                  <polygon points="840,240 865,246 850,258 825,250" fill="#00ffff" />
-                  <path d="M 112 245 C 110 230, 115 218, 125 215" fill="none" stroke="#ff2d55" strokeWidth="5" />
-                  
-                  {/* Front & rear wheels */}
-                  <g transform="translate(715, 275)">
-                    <circle cx="0" cy="0" r="48" fill="#0b1120" stroke="#1f2d4d" strokeWidth="10" />
-                    <circle cx="0" cy="0" r="34" fill="#1c253d" stroke="#485c8a" strokeWidth="2" strokeDasharray="3 3" />
-                    <g className={`car-wheel-rim ${isThrottling ? 'rolling-fast' : 'rolling'}`}>
-                      <circle cx="0" cy="0" r="12" fill="#070c17" stroke="#00d2ff" strokeWidth="2" />
-                      <line x1="0" y1="-30" x2="0" y2="30" stroke="#7957ff" strokeWidth="3" />
-                      <line x1="-26" y1="-15" x2="26" y2="15" stroke="#7957ff" strokeWidth="3" />
-                      <line x1="-26" y1="15" x2="26" y2="-15" stroke="#7957ff" strokeWidth="3" />
-                    </g>
-                  </g>
-                  <g transform="translate(245, 275)">
-                    <circle cx="0" cy="0" r="48" fill="#0b1120" stroke="#1f2d4d" strokeWidth="10" />
-                    <circle cx="0" cy="0" r="34" fill="#1c253d" stroke="#485c8a" strokeWidth="2" strokeDasharray="3 3" />
-                    <g className={`car-wheel-rim ${isThrottling ? 'rolling-fast' : 'rolling'}`}>
-                      <circle cx="0" cy="0" r="12" fill="#070c17" stroke="#00d2ff" strokeWidth="2" />
-                      <line x1="0" y1="-30" x2="0" y2="30" stroke="#7957ff" strokeWidth="3" />
-                      <line x1="-26" y1="-15" x2="26" y2="15" stroke="#7957ff" strokeWidth="3" />
-                      <line x1="-26" y1="15" x2="26" y2="-15" stroke="#7957ff" strokeWidth="3" />
-                    </g>
-                  </g>
+                  {/* Signature Chrome C-Line */}
+                  <path d="M 680 165 C 520 150, 410 195, 410 240 C 410 275, 460 288, 620 288" fill="none" stroke="#f8fafc" strokeWidth="4" />
                 </svg>
               </div>
             )}
@@ -430,8 +431,8 @@ export const CarShowcase = () => {
               <div className="car-hotspot-drawer" style={{ zIndex: 50 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.6rem' }}>
                   <div>
-                    <span style={{ fontSize: '0.7rem', color: '#00d2ff', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
-                      Diagnostic Telemetry
+                    <span style={{ fontSize: '0.7rem', color: '#00a8ff', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
+                      Bugatti Chiron W16 Telemetry
                     </span>
                     <h4 style={{ margin: '0.2rem 0 0', fontSize: '0.95rem', color: '#fff', fontWeight: '700' }}>
                       {selectedHotspot.label}
@@ -452,19 +453,17 @@ export const CarShowcase = () => {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', background: 'rgba(255,255,255,0.04)', padding: '0.6rem', borderRadius: '8px', fontSize: '0.78rem', fontFamily: 'monospace' }}>
                   {selectedHotspot.temp && <div><span style={{ color: '#94a3b8' }}>TEMP:</span> <strong>{selectedHotspot.temp}</strong></div>}
-                  {selectedHotspot.psi && <div><span style={{ color: '#94a3b8' }}>PRESSURE:</span> <strong>{selectedHotspot.psi}</strong></div>}
-                  {selectedHotspot.voltage && <div><span style={{ color: '#94a3b8' }}>VOLT:</span> <strong>{selectedHotspot.voltage}</strong></div>}
+                  {selectedHotspot.psi && <div><span style={{ color: '#94a3b8' }}>BOOST:</span> <strong>{selectedHotspot.psi}</strong></div>}
                   {selectedHotspot.life && <div><span style={{ color: '#94a3b8' }}>PAD LIFE:</span> <strong>{selectedHotspot.life}</strong></div>}
-                  {selectedHotspot.downforce && <div><span style={{ color: '#94a3b8' }}>AERO:</span> <strong>{selectedHotspot.downforce}</strong></div>}
-                  {selectedHotspot.latency && <div><span style={{ color: '#94a3b8' }}>LATENCY:</span> <strong>{selectedHotspot.latency}</strong></div>}
+                  {selectedHotspot.downforce && <div><span style={{ color: '#94a3b8' }}>DOWNFORCE:</span> <strong>{selectedHotspot.downforce}</strong></div>}
+                  {selectedHotspot.latency && <div><span style={{ color: '#94a3b8' }}>SHIFT:</span> <strong>{selectedHotspot.latency}</strong></div>}
                   {selectedHotspot.range && <div><span style={{ color: '#94a3b8' }}>RANGE:</span> <strong>{selectedHotspot.range}</strong></div>}
-                  {selectedHotspot.fov && <div><span style={{ color: '#94a3b8' }}>FOV:</span> <strong>{selectedHotspot.fov}</strong></div>}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Component Inspection Bar Directly Below Centered Viewport */}
+          {/* Subsystem Inspection Bar Below Centered 3D Viewport */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -473,24 +472,24 @@ export const CarShowcase = () => {
             gap: '10px',
             marginTop: '1.25rem',
             padding: '0.75rem 1rem',
-            background: 'rgba(10, 16, 32, 0.6)',
+            background: 'rgba(10, 16, 32, 0.65)',
             borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.06)'
+            border: '1px solid rgba(0, 168, 255, 0.15)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#94a3b8' }}>
-              <Cpu size={14} style={{ color: '#00d2ff' }} />
-              <span style={{ fontWeight: '600' }}>INSPECT SYSTEMS:</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#00a8ff' }}>
+              <Cpu size={14} />
+              <span style={{ fontWeight: '700' }}>W16 SUBSYSTEMS:</span>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {car.hotspots.map((h) => (
+              {CHIRON_SPECS.hotspots.map((h) => (
                 <button
                   key={h.id}
                   type="button"
                   onClick={() => setSelectedHotspot(h)}
                   style={{
-                    background: selectedHotspot?.id === h.id ? '#00d2ff' : 'rgba(255, 255, 255, 0.05)',
+                    background: selectedHotspot?.id === h.id ? '#00a8ff' : 'rgba(255, 255, 255, 0.05)',
                     color: selectedHotspot?.id === h.id ? '#050a17' : '#cbd5e1',
-                    border: `1px solid ${selectedHotspot?.id === h.id ? '#00d2ff' : 'rgba(255, 255, 255, 0.1)'}`,
+                    border: `1px solid ${selectedHotspot?.id === h.id ? '#00a8ff' : 'rgba(255, 255, 255, 0.1)'}`,
                     borderRadius: '8px',
                     padding: '5px 12px',
                     fontSize: '0.78rem',
@@ -513,69 +512,69 @@ export const CarShowcase = () => {
             {/* Speedometer Gauge Tile */}
             <div className="car-hud-tile">
               <span style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Velocity Speedometer
+                W16 Velocity Speedometer
               </span>
               <div className="car-hud-metric">
                 {speed} <span className="car-hud-metric-unit">MPH</span>
               </div>
               <div style={{ height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ width: `${(speed / car.speedMax) * 100}%`, height: '100%', background: 'linear-gradient(90deg, #00d2ff, #7957ff)', transition: 'width 0.1s ease' }} />
+                <div style={{ width: `${(speed / CHIRON_SPECS.speedMax) * 100}%`, height: '100%', background: 'linear-gradient(90deg, #0088ff, #00e5ff)', transition: 'width 0.1s ease' }} />
               </div>
             </div>
 
-            {/* Tachometer / Power Output */}
+            {/* Tachometer / W16 Output */}
             <div className="car-hud-tile">
               <span style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Engine RPM / Inverter
+                W16 Engine RPM / 1,500 HP
               </span>
-              <div className="car-hud-metric" style={{ color: rpm > 6500 ? '#ff5d7d' : '#ffffff' }}>
+              <div className="car-hud-metric" style={{ color: rpm > 5800 ? '#ff1744' : '#ffffff' }}>
                 {rpm.toLocaleString()} <span className="car-hud-metric-unit">RPM</span>
               </div>
               <div style={{ height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ width: `${(rpm / car.rpmMax) * 100}%`, height: '100%', background: rpm > 6500 ? '#ff2d55' : 'linear-gradient(90deg, #00ffaa, #00d2ff)', transition: 'width 0.1s ease' }} />
+                <div style={{ width: `${(rpm / CHIRON_SPECS.rpmMax) * 100}%`, height: '100%', background: rpm > 5800 ? '#ff1744' : 'linear-gradient(90deg, #00ffaa, #0088ff)', transition: 'width 0.1s ease' }} />
               </div>
             </div>
 
-            {/* Turbo Boost / Telemetry */}
+            {/* Quad-Turbo Boost */}
             <div className="car-hud-tile">
               <span style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Manifold Pressure / Boost
+                Quad-Turbo Manifold Boost
               </span>
-              <div className="car-hud-metric" style={{ color: '#00d2ff' }}>
+              <div className="car-hud-metric" style={{ color: '#00a8ff' }}>
                 {boost} <span className="car-hud-metric-unit">BAR</span>
               </div>
               <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '4px' }}>
-                AERO LOAD: <strong style={{ color: '#fff' }}>{car.downforce}</strong>
+                AERO DOWNFORCE: <strong style={{ color: '#fff' }}>{CHIRON_SPECS.downforce}</strong>
               </div>
             </div>
 
-            {/* 4-Corner TPMS Tire Pressure Monitor */}
+            {/* 4-Corner TPMS Michelin Pilot Sport Cup 2 */}
             <div className="car-hud-tile">
               <span style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Quad-Tire TPMS Monitor
+                Michelin Cup 2 TPMS Monitor
               </span>
               <div className="car-tpms-grid">
                 <div className="car-tpms-item">
                   <span style={{ color: '#94a3b8' }}>FL</span>
-                  <strong>34.2 PSI</strong>
+                  <strong>36.2 PSI</strong>
                 </div>
                 <div className="car-tpms-item">
                   <span style={{ color: '#94a3b8' }}>FR</span>
-                  <strong>34.4 PSI</strong>
+                  <strong>36.4 PSI</strong>
                 </div>
                 <div className="car-tpms-item">
                   <span style={{ color: '#94a3b8' }}>RL</span>
-                  <strong>35.1 PSI</strong>
+                  <strong>37.1 PSI</strong>
                 </div>
                 <div className="car-tpms-item">
                   <span style={{ color: '#94a3b8' }}>RR</span>
-                  <strong>35.0 PSI</strong>
+                  <strong>37.0 PSI</strong>
                 </div>
               </div>
             </div>
 
             {/* Interactive Launch Button Tile */}
-            <div className="car-hud-tile" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: 'rgba(121, 87, 255, 0.08)', borderColor: 'rgba(121, 87, 255, 0.3)' }}>
+            <div className="car-hud-tile" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: 'rgba(0, 168, 255, 0.1)', borderColor: 'rgba(0, 168, 255, 0.35)' }}>
               <button 
                 type="button"
                 className={`car-throttle-btn ${isThrottling ? 'engaged' : ''}`}
@@ -585,12 +584,15 @@ export const CarShowcase = () => {
                 onTouchEnd={() => setIsThrottling(false)}
                 onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') setIsThrottling(true); }}
                 onKeyUp={(e) => { if (e.key === ' ' || e.key === 'Enter') setIsThrottling(false); }}
+                style={{
+                  background: isThrottling ? 'linear-gradient(135deg, #ff1744 0%, #ff5252 100%)' : 'linear-gradient(135deg, #0088ff 0%, #00e5ff 100%)'
+                }}
               >
                 <Flame size={18} />
-                <span>{isThrottling ? 'LAUNCHING...' : 'HOLD THROTTLE'}</span>
+                <span>{isThrottling ? 'LAUNCHING W16...' : 'HOLD THROTTLE'}</span>
               </button>
               <span style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '0.4rem' }}>
-                Press & hold to rev 3D vehicle
+                Press & hold to rev 1,500 HP W16
               </span>
             </div>
           </div>

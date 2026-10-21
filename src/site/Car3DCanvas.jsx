@@ -2,21 +2,24 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 /**
- * High-Performance Interactive 3D WebGL Supercar Canvas
- * Perfectly centered, beautifully sculpted sports car geometry
+ * Authentic 3D WebGL Bugatti Chiron Hypercar Canvas
  * Features:
- * - Sculpted aerodynamic car body with beveled contours and metallic showroom paint
- * - Tinted panoramic glass canopy, front air-intake grilles, and carbon splitters
- * - 4 high-detail alloy wheels with rubber tires, cross-drilled rotors & Brembo calipers
- * - Jewel LED matrix headlights casting 3D volumetric light onto the showroom floor
- * - Full-width rear OLED laser taillight bar
- * - 360° mouse / touch turntable orbit controls (perfectly centered on vehicle)
- * - 3D X-Ray internal powertrain & battery diagnostics
- * - 3D wind-tunnel aerodynamic particle streamlines
+ * - Signature Bugatti Horseshoe Grille & front air splitters
+ * - Iconic Bugatti "C-Line" side profile curve sweeping behind the doors
+ * - Dual-Tone Bugatti Clearcoat Paint with real-time livery customization
+ * - Quad "Ice-Cube" LED Matrix Projector Headlights (4 on each side)
+ * - Center Aerodynamic Dorsal Spine along the roof and engine decklid
+ * - Exposed 8.0L Quad-Turbo W16 Powertrain with aluminum plenum intakes
+ * - Full-Width 1.6m Continuous Ruby-Red OLED Tail Light Blade
+ * - Center-mounted titanium exhaust and rear carbon venturi diffuser
+ * - Directional diamond-cut Bugatti alloy wheels with blue/red calipers
+ * - Eye-level camera, perfectly centered, studio-lit with 360° orbit turntable
  */
 export const Car3DCanvas = ({
-  carType = 'apex-gt', // 'apex-gt' | 'cyber-pulse' | 'titan-recon' | 'formula-spec'
-  mode = 'xray', // 'xray' | 'aero' | 'track'
+  carType = 'chiron',
+  primaryColor = '#00a8ff', // French Racing Blue
+  secondaryColor = '#081736', // Atlantic Deep Carbon
+  mode = 'showroom', // 'showroom' | 'xray' | 'aero' | 'track'
   isThrottling = false,
   speed = 65,
   autoRotate = true,
@@ -26,98 +29,117 @@ export const Car3DCanvas = ({
   const sceneRef = useRef(null);
   const rendererRef = useRef(null);
   const carGroupRef = useRef(null);
+  const primaryMatsRef = useRef([]);
+  const secondaryMatsRef = useRef([]);
   const wheelsRef = useRef([]);
   const aeroLinesRef = useRef([]);
   const laserRef = useRef(null);
   const cameraRef = useRef(null);
   const isDraggingRef = useRef(false);
   const previousMousePositionRef = useRef({ x: 0, y: 0 });
-  const targetRotationRef = useRef({ x: 0.18, y: -0.65 });
-  const currentRotationRef = useRef({ x: 0.18, y: -0.65 });
+  const targetRotationRef = useRef({ x: 0.16, y: -0.72 });
+  const currentRotationRef = useRef({ x: 0.16, y: -0.72 });
 
-  // Update camera preset if prop changes
+  // Camera presets
   useEffect(() => {
     if (cameraPreset === 'side') {
-      targetRotationRef.current = { x: 0.05, y: -Math.PI / 2 };
+      targetRotationRef.current = { x: 0.04, y: -Math.PI / 2 };
     } else if (cameraPreset === 'top') {
-      targetRotationRef.current = { x: 0.75, y: -0.3 };
+      targetRotationRef.current = { x: 0.78, y: -0.35 };
     } else if (cameraPreset === 'rear') {
-      targetRotationRef.current = { x: 0.15, y: -2.7 };
+      targetRotationRef.current = { x: 0.15, y: -2.65 };
     } else {
       // three-quarters default
-      targetRotationRef.current = { x: 0.18, y: -0.65 };
+      targetRotationRef.current = { x: 0.16, y: -0.72 };
     }
   }, [cameraPreset]);
+
+  // Real-time paint livery color updates
+  useEffect(() => {
+    const pColor = new THREE.Color(primaryColor);
+    const sColor = new THREE.Color(secondaryColor);
+    primaryMatsRef.current.forEach(mat => { if (mat) mat.color = pColor; });
+    secondaryMatsRef.current.forEach(mat => { if (mat) mat.color = sColor; });
+  }, [primaryColor, secondaryColor]);
 
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
 
     // 1. SCENE SETUP
-    const width = mount.clientWidth || 800;
+    const width = mount.clientWidth || 840;
     const height = mount.clientHeight || 520;
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x060914, 0.028);
+    scene.fog = new THREE.FogExp2(0x060914, 0.02);
     sceneRef.current = scene;
 
-    // 2. CAMERA - PERFECTLY CENTERED EYE-LEVEL 3D ANGLE
-    // Center of car is at (0, 0.48, 0)
-    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
-    camera.position.set(0, 1.4, 5.4);
-    camera.lookAt(0, 0.48, 0);
+    // 2. CAMERA - EYE-LEVEL PERSPECTIVE CENTERED ON BUGATTI CHIRON (Y = 0.46)
+    const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
+    camera.position.set(0, 1.35, 5.2);
+    camera.lookAt(0, 0.46, 0);
     cameraRef.current = camera;
 
-    // 3. RENDERER
+    // 3. RENDERER WITH ACES FILMIC TONE MAPPING
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.35;
+    renderer.toneMappingExposure = 1.45;
     mount.innerHTML = '';
     mount.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // 4. STUDIO SHOWROOM LIGHTING
-    const ambientLight = new THREE.AmbientLight(0x1a2644, 2.2);
-    scene.add(ambientLight);
+    // 4. STUDIO SHOWROOM LIGHTING - GUARANTEES CRISP REFLECTIONS & VIBRANCY
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x18243e, 2.6);
+    scene.add(hemiLight);
 
-    // Key Light (Cyan / White Highlight)
-    const keyLight = new THREE.DirectionalLight(0xe0f7ff, 3.5);
-    keyLight.position.set(4, 6, 5);
+    // Front-Left Key Light
+    const keyLight = new THREE.DirectionalLight(0xffffff, 4.0);
+    keyLight.position.set(6, 7, 5);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.width = 1024;
     keyLight.shadow.mapSize.height = 1024;
     scene.add(keyLight);
 
-    // Rim / Fill Light (Deep Violet / Blue Accent)
-    const rimLight = new THREE.DirectionalLight(0x7957ff, 2.8);
-    rimLight.position.set(-5, 4, -4);
+    // Side Flank Light (Highlights Bugatti C-Line curve & doors)
+    const sideLight = new THREE.DirectionalLight(0x00d2ff, 2.8);
+    sideLight.position.set(-6, 4, 3);
+    scene.add(sideLight);
+
+    // Rear Rim Light (Highlights active spoiler, quad exhaust & taillight)
+    const rimLight = new THREE.DirectionalLight(0xffffff, 3.0);
+    rimLight.position.set(-4, 5, -5);
     scene.add(rimLight);
 
-    // Top Overhead Soft Light
-    const topLight = new THREE.DirectionalLight(0x00d2ff, 1.8);
-    topLight.position.set(0, 7, 0);
+    // Overhead High-Intensity Spot for Bonnet & Roof Spine
+    const topLight = new THREE.DirectionalLight(0xffffff, 2.2);
+    topLight.position.set(0, 8, 0);
     scene.add(topLight);
 
-    // Ground Neon Underglow PointLight
-    const underglow = new THREE.PointLight(0x00d2ff, 3.8, 5.5);
+    // Front Horseshoe Grille Illuminator
+    const frontFill = new THREE.DirectionalLight(0xffffff, 2.0);
+    frontFill.position.set(0, 2, 7);
+    scene.add(frontFill);
+
+    // Ground Neon Underglow
+    const underglow = new THREE.PointLight(0x00a8ff, 4.5, 6);
     underglow.position.set(0, 0.08, 0);
     scene.add(underglow);
 
     // 5. CYBER SHOWROOM TURNTABLE PLATFORM
     const turntableGroup = new THREE.Group();
 
-    // Concentric Neon Turntable Rings
-    [1.6, 2.4, 3.3].forEach((r, idx) => {
-      const ringGeo = new THREE.RingGeometry(r, r + 0.02, 64);
+    // Concentric Turntable Rings
+    [1.6, 2.5, 3.4].forEach((r, idx) => {
+      const ringGeo = new THREE.RingGeometry(r, r + 0.025, 64);
       const ringMat = new THREE.MeshBasicMaterial({
         color: idx === 1 ? 0x00d2ff : 0x7957ff,
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: 0.45
+        opacity: 0.55
       });
       const ring = new THREE.Mesh(ringGeo, ringMat);
       ring.rotation.x = -Math.PI / 2;
@@ -125,14 +147,14 @@ export const Car3DCanvas = ({
       turntableGroup.add(ring);
     });
 
-    // Holographic Circular Platform Disc
+    // Mirror-Finish Turntable Disc
     const discGeo = new THREE.CircleGeometry(3.6, 64);
     const discMat = new THREE.MeshStandardMaterial({
       color: 0x070c18,
-      metalness: 0.85,
-      roughness: 0.35,
+      metalness: 0.75,
+      roughness: 0.25,
       transparent: true,
-      opacity: 0.95
+      opacity: 0.96
     });
     const disc = new THREE.Mesh(discGeo, discMat);
     disc.rotation.x = -Math.PI / 2;
@@ -145,7 +167,7 @@ export const Car3DCanvas = ({
     const shadowMat = new THREE.MeshBasicMaterial({
       color: 0x010308,
       transparent: true,
-      opacity: 0.8
+      opacity: 0.85
     });
     const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
     shadowMesh.rotation.x = -Math.PI / 2;
@@ -169,13 +191,23 @@ export const Car3DCanvas = ({
     laserRef.current = laserMesh;
     scene.add(laserMesh);
 
-    // 7. BUILD SCULPTED 3D SUPERCAR
+    // 7. BUILD AUTHENTIC BUGATTI CHIRON
     const carGroup = new THREE.Group();
-    // Position car right at the turntable origin
     carGroup.position.set(0, 0, 0);
     carGroupRef.current = carGroup;
     wheelsRef.current = [];
-    buildSculptedSupercar(carGroup, carType, mode, wheelsRef.current);
+    primaryMatsRef.current = [];
+    secondaryMatsRef.current = [];
+
+    buildBugattiChiron(
+      carGroup, 
+      primaryColor, 
+      secondaryColor, 
+      mode, 
+      wheelsRef.current, 
+      primaryMatsRef.current, 
+      secondaryMatsRef.current
+    );
     scene.add(carGroup);
 
     // 8. 3D AERO STREAMLINES
@@ -272,8 +304,8 @@ export const Car3DCanvas = ({
         });
       }
 
-      // Keep camera aimed precisely at center of car
-      camera.lookAt(0, 0.48, 0);
+      // Keep camera aimed precisely at center of Bugatti Chiron
+      camera.lookAt(0, 0.46, 0);
       renderer.render(scene, camera);
     };
 
@@ -322,9 +354,9 @@ export const Car3DCanvas = ({
 };
 
 // =========================================================================
-// HELPER: BUILD SCULPTED 3D SUPERCAR GEOMETRY
+// HELPER: BUILD AUTHENTIC 3D BUGATTI CHIRON WITH ICONIC DUAL-TONE & C-LINE
 // =========================================================================
-function buildSculptedSupercar(group, carType, mode, wheelsList) {
+function buildBugattiChiron(group, primaryColor, secondaryColor, mode, wheelsList, primaryMats, secondaryMats) {
   while (group.children.length > 0) {
     const obj = group.children[0];
     group.remove(obj);
@@ -332,272 +364,272 @@ function buildSculptedSupercar(group, carType, mode, wheelsList) {
 
   const isXRay = (mode === 'xray');
 
-  // Premium Automotive Paint Shaders
-  let bodyColorHex = 0x0a1e3f; // Deep Sapphire Metallic
-  if (carType === 'cyber-pulse') bodyColorHex = 0x111c30; // Cyber Slate
-  if (carType === 'titan-recon') bodyColorHex = 0x18202c; // Tactical Carbon
-  if (carType === 'formula-spec') bodyColorHex = 0x081120; // Obsidian Formula
-
-  const paintMaterial = new THREE.MeshStandardMaterial({
-    color: bodyColorHex,
-    metalness: 0.92,
+  // 1. DUAL-TONE BUGATTI CLEARCOAT PAINT MATERIALS
+  const primaryPaint = new THREE.MeshPhysicalMaterial({
+    color: new THREE.Color(primaryColor),
+    metalness: 0.35,
     roughness: 0.16,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.08,
     transparent: isXRay,
-    opacity: isXRay ? 0.38 : 1.0,
+    opacity: isXRay ? 0.35 : 1.0,
     wireframe: isXRay
   });
+  primaryMats.push(primaryPaint);
 
+  const secondaryPaint = new THREE.MeshPhysicalMaterial({
+    color: new THREE.Color(secondaryColor),
+    metalness: 0.5,
+    roughness: 0.18,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.08,
+    transparent: isXRay,
+    opacity: isXRay ? 0.35 : 1.0,
+    wireframe: isXRay
+  });
+  secondaryMats.push(secondaryPaint);
+
+  // Polished Aluminum / Chrome for Bugatti Horseshoe Grille & C-Line Trim
+  const chromeMaterial = new THREE.MeshStandardMaterial({
+    color: 0xf8fafc,
+    metalness: 0.98,
+    roughness: 0.05
+  });
+
+  // Carbon Fiber Aero Elements (Splitter, Diffuser, Active Wing)
   const carbonMaterial = new THREE.MeshStandardMaterial({
-    color: 0x080a12,
-    metalness: 0.8,
-    roughness: 0.4
+    color: 0x111622,
+    metalness: 0.85,
+    roughness: 0.25
   });
 
-  const neonCyanMat = new THREE.MeshBasicMaterial({
-    color: 0x00d2ff,
-    wireframe: isXRay
-  });
-
+  // Tinted Panoramic Glass with Specular Reflections
   const glassMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x00e1ff,
+    color: 0x050d1a,
     transparent: true,
-    opacity: isXRay ? 0.25 : 0.65,
-    metalness: 0.2,
+    opacity: isXRay ? 0.25 : 0.78,
+    metalness: 0.1,
     roughness: 0.05,
-    transmission: 0.85,
-    ior: 1.52
+    transmission: 0.7,
+    ior: 1.55
   });
 
-  // 1. SCULPTED AERODYNAMIC CAR BODY USING EXTRUDED PROFILE SHAPE
-  // Length: Z from -1.95 to +2.05 (4.0m)
-  // Height: Y from 0.15 to 0.95 (0.8m)
-  const profileShape = new THREE.Shape();
-  profileShape.moveTo(-2.0, 0.18); // rear diffuser bottom
-  profileShape.lineTo(-1.95, 0.62); // rear bumper slope
-  profileShape.lineTo(-1.85, 0.70); // rear ducktail spoiler lip
-  profileShape.quadraticCurveTo(-1.3, 0.74, -0.7, 0.92); // fastback rear window slope to roof
-  profileShape.quadraticCurveTo(-0.15, 0.96, 0.35, 0.88); // aerodynamic roof apex
-  profileShape.quadraticCurveTo(0.85, 0.72, 1.35, 0.48); // raked windshield down to hood
-  profileShape.quadraticCurveTo(1.75, 0.42, 2.05, 0.28); // sculpted low nose cone
-  profileShape.lineTo(2.08, 0.16); // front splitter lip
-  profileShape.lineTo(-2.0, 0.16); // flat underbody aerodynamic undertray
+  // =========================================================================
+  // 2. MAIN SCULPTED CHIRON BODY (Front Section in Primary Paint)
+  // Length: 4.1m (Z from -2.0 to +2.05), Height: 0.82m (Y from 0.18 to 0.96)
+  // =========================================================================
+  const frontShape = new THREE.Shape();
+  frontShape.moveTo(0.1, 0.18); // center midpoint
+  frontShape.lineTo(0.1, 0.86); // center roof line
+  frontShape.quadraticCurveTo(0.7, 0.72, 1.35, 0.48); // raked windshield to hood
+  frontShape.quadraticCurveTo(1.78, 0.42, 2.06, 0.28); // sculpted low nose cone
+  frontShape.lineTo(2.08, 0.18); // front splitter
+  frontShape.lineTo(0.1, 0.18);
 
-  const extrudeSettings = {
+  const frontGeo = new THREE.ExtrudeGeometry(frontShape, {
     steps: 1,
-    depth: 1.5, // Car width 1.5m
+    depth: 1.54,
     bevelEnabled: true,
     bevelThickness: 0.12,
     bevelSize: 0.12,
-    bevelOffset: 0,
-    bevelSegments: 4
-  };
-
-  const bodyGeo = new THREE.ExtrudeGeometry(profileShape, extrudeSettings);
-  // Center extrusion along X-axis
-  bodyGeo.translate(0, 0, -0.75);
-  // Rotate so profile is aligned along Z-axis (length of car)
-  bodyGeo.rotateY(Math.PI / 2);
-
-  const bodyMesh = new THREE.Mesh(bodyGeo, paintMaterial);
-  bodyMesh.castShadow = true;
-  bodyMesh.receiveShadow = true;
-  group.add(bodyMesh);
-
-  // 2. SCULPTED GLASS CANOPY (WINDSHIELD & CABIN ROOF)
-  const canopyShape = new THREE.Shape();
-  canopyShape.moveTo(-0.6, 0.70);
-  canopyShape.quadraticCurveTo(-0.1, 0.94, 0.35, 0.88);
-  canopyShape.quadraticCurveTo(0.8, 0.72, 1.25, 0.48);
-  canopyShape.lineTo(1.15, 0.46);
-  canopyShape.lineTo(-0.55, 0.66);
-
-  const canopyGeo = new THREE.ExtrudeGeometry(canopyShape, {
-    steps: 1,
-    depth: 1.15,
-    bevelEnabled: true,
-    bevelThickness: 0.05,
-    bevelSize: 0.05,
-    bevelSegments: 3
+    bevelSegments: 5
   });
-  canopyGeo.translate(0, 0, -0.575);
-  canopyGeo.rotateY(Math.PI / 2);
-  const canopyMesh = new THREE.Mesh(canopyGeo, glassMaterial);
-  group.add(canopyMesh);
+  frontGeo.translate(0, 0, -0.77);
+  frontGeo.rotateY(Math.PI / 2);
 
-  // 3. FRONT CARBON SPLITTER & LOWER BUMPER INTAKES
-  const splitterGeo = new THREE.BoxGeometry(1.76, 0.06, 0.7);
-  const splitter = new THREE.Mesh(splitterGeo, carbonMaterial);
-  splitter.position.set(0, 0.18, 1.85);
-  group.add(splitter);
+  const frontBody = new THREE.Mesh(frontGeo, primaryPaint);
+  frontBody.castShadow = true;
+  frontBody.receiveShadow = true;
+  group.add(frontBody);
 
-  // Front Winglets
-  const wingletL = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.14, 0.3), neonCyanMat);
-  wingletL.position.set(-0.88, 0.24, 1.9);
-  const wingletR = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.14, 0.3), neonCyanMat);
-  wingletR.position.set(0.88, 0.24, 1.9);
-  group.add(wingletL);
-  group.add(wingletR);
+  // REAR BODY SECTION (In Secondary Contrasting Paint)
+  const rearShape = new THREE.Shape();
+  rearShape.moveTo(-2.0, 0.18); // rear diffuser
+  rearShape.lineTo(-1.96, 0.60); // rear bumper
+  rearShape.lineTo(-1.85, 0.70); // rear ducktail
+  rearShape.quadraticCurveTo(-1.3, 0.74, -0.68, 0.92); // fastback roof
+  rearShape.lineTo(0.15, 0.86); // center roof line
+  rearShape.lineTo(0.15, 0.18); // center bottom
+  rearShape.lineTo(-2.0, 0.18);
 
-  // 4. FRONT LED MATRIX HEADLIGHTS
-  const headGeo = new THREE.BoxGeometry(0.32, 0.07, 0.15);
-  const headMat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
-  const headL = new THREE.Mesh(headGeo, headMat);
-  headL.position.set(-0.62, 0.44, 1.92);
-  headL.rotation.y = 0.2;
-  const headR = new THREE.Mesh(headGeo, headMat);
-  headR.position.set(0.62, 0.44, 1.92);
-  headR.rotation.y = -0.2;
-  group.add(headL);
-  group.add(headR);
+  const rearGeo = new THREE.ExtrudeGeometry(rearShape, {
+    steps: 1,
+    depth: 1.54,
+    bevelEnabled: true,
+    bevelThickness: 0.12,
+    bevelSize: 0.12,
+    bevelSegments: 5
+  });
+  rearGeo.translate(0, 0, -0.77);
+  rearGeo.rotateY(Math.PI / 2);
 
-  // Volumetric Headlight 3D Beams casting forward onto ground
-  const spotL = new THREE.SpotLight(0x00e5ff, 4.2, 10, Math.PI / 7, 0.4);
-  spotL.position.set(-0.62, 0.44, 1.92);
-  const targetL = new THREE.Object3D();
-  targetL.position.set(-0.62, 0.1, 7.0);
-  group.add(targetL);
-  spotL.target = targetL;
-  group.add(spotL);
+  const rearBody = new THREE.Mesh(rearGeo, secondaryPaint);
+  rearBody.castShadow = true;
+  rearBody.receiveShadow = true;
+  group.add(rearBody);
 
-  const spotR = new THREE.SpotLight(0x00e5ff, 4.2, 10, Math.PI / 7, 0.4);
-  spotR.position.set(0.62, 0.44, 1.92);
-  const targetR = new THREE.Object3D();
-  targetR.position.set(0.62, 0.1, 7.0);
-  group.add(targetR);
-  spotR.target = targetR;
-  group.add(spotR);
+  // =========================================================================
+  // 3. THE SIGNATURE BUGATTI "C-LINE" (CHROME ELLIPTICAL CURVE ON BOTH SIDES)
+  // =========================================================================
+  [-0.80, 0.80].forEach(cx => {
+    // Elegant sweeping 3D Bugatti C-curve
+    const curvePoints = [];
+    for (let a = 0; a <= Math.PI * 1.55; a += 0.12) {
+      const z = Math.cos(a) * 0.95 - 0.2;
+      const y = Math.sin(a) * 0.42 + 0.58;
+      curvePoints.push(new THREE.Vector3(cx > 0 ? cx + 0.02 : cx - 0.02, y, z));
+    }
+    const cCurve = new THREE.CatmullRomCurve3(curvePoints);
+    const cTubeGeo = new THREE.TubeGeometry(cCurve, 32, 0.035, 12, false);
+    const cTubeMesh = new THREE.Mesh(cTubeGeo, chromeMaterial);
+    group.add(cTubeMesh);
+  });
 
-  // 5. REAR FULL-WIDTH OLED LASER TAILLIGHT BAR
-  const tailGeo = new THREE.BoxGeometry(1.62, 0.05, 0.08);
-  const tailMat = new THREE.MeshBasicMaterial({ color: 0xff2d55 });
-  const tail = new THREE.Mesh(tailGeo, tailMat);
-  tail.position.set(0, 0.62, -1.98);
-  group.add(tail);
+  // =========================================================================
+  // 4. ICONIC BUGATTI HORSESHOE GRILLE & CENTER NOSE
+  // =========================================================================
+  // Chrome Horseshoe Frame
+  const horseshoeGeo = new THREE.TorusGeometry(0.24, 0.04, 16, 24, Math.PI);
+  const horseshoeFrame = new THREE.Mesh(horseshoeGeo, chromeMaterial);
+  horseshoeFrame.position.set(0, 0.36, 2.06);
+  horseshoeFrame.rotation.z = Math.PI;
+  group.add(horseshoeFrame);
 
-  // Rear Diffuser with vertical fins
-  const diffuserGeo = new THREE.BoxGeometry(1.68, 0.12, 0.5);
-  const diffuser = new THREE.Mesh(diffuserGeo, carbonMaterial);
-  diffuser.position.set(0, 0.22, -1.9);
+  // Lower straight sides of the horseshoe
+  [-0.24, 0.24].forEach(hx => {
+    const sideBar = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.24, 12), chromeMaterial);
+    sideBar.position.set(hx, 0.24, 2.06);
+    group.add(sideBar);
+  });
+
+  // Black Honeycomb Mesh Backing
+  const meshBack = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.36, 0.04), carbonMaterial);
+  meshBack.position.set(0, 0.28, 2.04);
+  group.add(meshBack);
+
+  // Red Bugatti Enamel Macaron Badge in Center of Grille
+  const badge = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.015, 16), new THREE.MeshBasicMaterial({ color: 0xe61c24 }));
+  badge.rotation.x = Math.PI / 2;
+  badge.position.set(0, 0.38, 2.08);
+  group.add(badge);
+
+  // =========================================================================
+  // 5. QUAD "ICE-CUBE" LED MATRIX HEADLIGHTS (4 ON EACH SIDE)
+  // =========================================================================
+  [-0.64, 0.64].forEach((hx, idx) => {
+    const headHousing = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.09, 0.15), carbonMaterial);
+    headHousing.position.set(hx, 0.44, 1.94);
+    headHousing.rotation.y = idx === 0 ? 0.22 : -0.22;
+    group.add(headHousing);
+
+    // 4 Distinct Square LED Projector Cubes
+    [-0.12, -0.04, 0.04, 0.12].forEach(cubeX => {
+      const cube = new THREE.Mesh(
+        new THREE.BoxGeometry(0.05, 0.05, 0.02),
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
+      );
+      cube.position.set(hx + cubeX, 0.44, 2.02);
+      cube.rotation.y = idx === 0 ? 0.22 : -0.22;
+      group.add(cube);
+    });
+
+    // Volumetric 3D Headlight Spotlights
+    const spot = new THREE.SpotLight(0x00f0ff, 4.5, 12, Math.PI / 6, 0.45);
+    spot.position.set(hx, 0.44, 1.94);
+    const target = new THREE.Object3D();
+    target.position.set(hx, 0.05, 6.5);
+    group.add(target);
+    spot.target = target;
+    group.add(spot);
+  });
+
+  // =========================================================================
+  // 6. AERODYNAMIC ATLANTIC DORSAL CENTER SPINE
+  // =========================================================================
+  const spineGeo = new THREE.BoxGeometry(0.025, 0.04, 3.2);
+  const spine = new THREE.Mesh(spineGeo, chromeMaterial);
+  spine.position.set(0, 0.94, -0.2);
+  group.add(spine);
+
+  // =========================================================================
+  // 7. EXPOSED 8.0L QUAD-TURBO W16 ENGINE BAY (Visible on Rear Deck)
+  // =========================================================================
+  const engineBayGlass = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.02, 1.1), glassMaterial);
+  engineBayGlass.position.set(0, 0.75, -0.7);
+  group.add(engineBayGlass);
+
+  // Twin Aluminum Air Intake Plenum Boxes
+  [-0.2, 0.2].forEach(ex => {
+    const plenum = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.1, 0.7), chromeMaterial);
+    plenum.position.set(ex, 0.72, -0.7);
+    group.add(plenum);
+  });
+
+  // W16 Carbon Engine Center Cover with Bugatti 1500 HP Inscription Plate
+  const w16Cover = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.06, 0.65), carbonMaterial);
+  w16Cover.position.set(0, 0.71, -0.7);
+  group.add(w16Cover);
+
+  // =========================================================================
+  // 8. 1.6-METER CONTINUOUS OLED REAR TAILLIGHT BLADE & TITANIUM EXHAUST
+  // =========================================================================
+  // Unbroken Red LED Tail Blade
+  const tailBlade = new THREE.Mesh(new THREE.BoxGeometry(1.68, 0.04, 0.06), new THREE.MeshBasicMaterial({ color: 0xff1744 }));
+  tailBlade.position.set(0, 0.62, -1.98);
+  group.add(tailBlade);
+
+  // Carbon Fiber Rear Venturi Diffuser
+  const diffuser = new THREE.Mesh(new THREE.BoxGeometry(1.72, 0.14, 0.5), carbonMaterial);
+  diffuser.position.set(0, 0.22, -1.92);
   group.add(diffuser);
 
-  // Dual Quad Exhaust Tips with Blue Heat Burn
-  const exhaustMat = new THREE.MeshStandardMaterial({ color: 0x223355, metalness: 0.95, roughness: 0.1 });
-  [-0.45, -0.35, 0.35, 0.45].forEach(xPos => {
-    const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.16, 16), exhaustMat);
-    pipe.rotation.x = Math.PI / 2;
-    pipe.position.set(xPos, 0.24, -2.02);
-    group.add(pipe);
-
-    // Inner glowing combustion core
-    const flameCore = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.02, 12), new THREE.MeshBasicMaterial({ color: 0x00d2ff }));
-    flameCore.rotation.x = Math.PI / 2;
-    flameCore.position.set(xPos, 0.24, -2.04);
-    group.add(flameCore);
+  // Vertical Diffuser Fins
+  [-0.65, -0.25, 0.25, 0.65].forEach(fx => {
+    const fin = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.16, 0.44), carbonMaterial);
+    fin.position.set(fx, 0.22, -1.94);
+    group.add(fin);
   });
 
-  // 6. REAR ACTIVE GT WING (Apex GT & Formula Spec)
-  if (carType === 'apex-gt' || carType === 'formula-spec') {
-    const wingGeo = new THREE.BoxGeometry(1.85, 0.04, 0.38);
-    const wing = new THREE.Mesh(wingGeo, carbonMaterial);
-    wing.position.set(0, 0.98, -1.82);
+  // Massive Center-Mounted Quad Titanium Exhaust Outlet
+  const exhaustSurround = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.16, 0.12), carbonMaterial);
+  exhaustSurround.position.set(0, 0.26, -2.01);
+  group.add(exhaustSurround);
 
-    const stanchionL = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.35, 8), carbonMaterial);
-    stanchionL.position.set(-0.48, 0.82, -1.82);
-    const stanchionR = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.35, 8), carbonMaterial);
-    stanchionR.position.set(0.48, 0.82, -1.82);
+  [-0.14, -0.05, 0.05, 0.14].forEach(px => {
+    const tip = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.14, 16), chromeMaterial);
+    tip.rotation.x = Math.PI / 2;
+    tip.position.set(px, 0.26, -2.04);
+    group.add(tip);
 
-    // Endplates
-    const endL = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.16, 0.42), neonCyanMat);
-    endL.position.set(-0.93, 0.98, -1.82);
-    const endR = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.16, 0.42), neonCyanMat);
-    endR.position.set(0.93, 0.98, -1.82);
+    const glow = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.02, 12), new THREE.MeshBasicMaterial({ color: 0x00d2ff }));
+    glow.rotation.x = Math.PI / 2;
+    glow.position.set(px, 0.26, -2.06);
+    group.add(glow);
+  });
 
-    group.add(wing);
-    group.add(stanchionL);
-    group.add(stanchionR);
-    group.add(endL);
-    group.add(endR);
+  // Active Aerodynamic Rear Wing
+  const wing = new THREE.Mesh(new THREE.BoxGeometry(1.88, 0.045, 0.38), carbonMaterial);
+  wing.position.set(0, 0.98, -1.82);
 
-    // Shark fin stabilizer for formula spec
-    if (carType === 'formula-spec') {
-      const fin = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.52, 1.4), neonCyanMat);
-      fin.position.set(0, 0.88, -0.9);
-      group.add(fin);
-    }
-  }
+  const stanchionL = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.35, 8), carbonMaterial);
+  stanchionL.position.set(-0.48, 0.82, -1.82);
+  const stanchionR = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.35, 8), carbonMaterial);
+  stanchionR.position.set(0.48, 0.82, -1.82);
 
-  // 7. ROOFTOP RACK PODS (Titan Recon)
-  if (carType === 'titan-recon') {
-    const rackGeo = new THREE.BoxGeometry(1.3, 0.06, 0.8);
-    const rack = new THREE.Mesh(rackGeo, carbonMaterial);
-    rack.position.set(0, 1.05, 0.1);
-    group.add(rack);
+  group.add(wing);
+  group.add(stanchionL);
+  group.add(stanchionR);
 
-    const podLight = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.08, 0.08), new THREE.MeshBasicMaterial({ color: 0xffe600 }));
-    podLight.position.set(0, 1.1, 0.45);
-    group.add(podLight);
-  }
-
-  // 8. X-RAY INTERNAL POWERTRAIN & 800V BATTERY SCHEMATICS
-  if (isXRay) {
-    // Twin-Turbo V8 Engine / Inverter Core
-    const engineCore = new THREE.Mesh(
-      new THREE.BoxGeometry(0.68, 0.38, 0.72),
-      new THREE.MeshStandardMaterial({
-        color: 0xff3b5c,
-        emissive: 0xff2d55,
-        emissiveIntensity: 0.8,
-        metalness: 0.9,
-        roughness: 0.2
-      })
-    );
-    engineCore.position.set(0, 0.42, -0.6);
-    group.add(engineCore);
-
-    // Glowing Twin Turbocharger Impellers
-    [-0.32, 0.32].forEach(tx => {
-      const turbo = new THREE.Mesh(
-        new THREE.TorusGeometry(0.12, 0.04, 12, 24),
-        new THREE.MeshBasicMaterial({ color: 0x00d2ff })
-      );
-      turbo.rotation.y = Math.PI / 2;
-      turbo.position.set(tx, 0.46, -0.32);
-      group.add(turbo);
-    });
-
-    // 800V Floorpan Battery Cell Matrix
-    const batteryFloor = new THREE.Mesh(
-      new THREE.BoxGeometry(1.3, 0.1, 1.9),
-      new THREE.MeshStandardMaterial({
-        color: 0x00ffaa,
-        emissive: 0x00ffaa,
-        emissiveIntensity: 0.45,
-        wireframe: true
-      })
-    );
-    batteryFloor.position.set(0, 0.22, 0.35);
-    group.add(batteryFloor);
-
-    // High Voltage Conduits
-    [-0.4, 0.4].forEach(wx => {
-      const conduit = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.025, 0.025, 2.6, 8),
-        new THREE.MeshBasicMaterial({ color: 0x00d2ff })
-      );
-      conduit.rotation.x = Math.PI / 2;
-      conduit.position.set(wx, 0.28, 0.35);
-      group.add(conduit);
-    });
-  }
-
-  // 9. 4 HIGH-DETAIL PERFORMANCE ALLOY WHEELS & ROTORS
-  const wheelRadius = carType === 'titan-recon' ? 0.38 : 0.34;
+  // =========================================================================
+  // 9. DIAMOND-CUT BUGATTI ALLOY WHEELS, CARBON ROTORS & BUGATTI CALIPERS
+  // =========================================================================
+  const wheelRadius = 0.34;
   const wheelWidth = 0.24;
 
   const wheelPositions = [
-    { x: -0.84, y: 0.34, z: 1.25, isFront: true },   // Front Left
-    { x: 0.84, y: 0.34, z: 1.25, isFront: true },    // Front Right
-    { x: -0.84, y: 0.36, z: -1.25, isFront: false }, // Rear Left
+    { x: -0.82, y: 0.34, z: 1.25, isFront: true },   // Front Left
+    { x: 0.82, y: 0.34, z: 1.25, isFront: true },    // Front Right
+    { x: -0.84, y: 0.36, z: -1.25, isFront: false }, // Rear Left (wider stance)
     { x: 0.84, y: 0.36, z: -1.25, isFront: false }   // Rear Right
   ];
 
@@ -605,46 +637,57 @@ function buildSculptedSupercar(group, carType, mode, wheelsList) {
     const wheelGroup = new THREE.Group();
     wheelGroup.position.set(pos.x, pos.y, pos.z);
 
-    // Performance Low-Profile Rubber Tire
-    const tireGeo = new THREE.CylinderGeometry(wheelRadius, wheelRadius, wheelWidth, 24);
+    // Deep Charcoal Performance Michelin Pilot Sport Cup 2 Tire
+    const tireGeo = new THREE.CylinderGeometry(wheelRadius, wheelRadius, wheelWidth, 28);
     const tireMat = new THREE.MeshStandardMaterial({
-      color: 0x0d121c,
-      roughness: 0.9,
+      color: 0x0f131a,
+      roughness: 0.88,
       metalness: 0.1
     });
     const tire = new THREE.Mesh(tireGeo, tireMat);
     tire.rotation.z = Math.PI / 2;
     wheelGroup.add(tire);
 
-    // 10-Spoke Alloy Rim
-    const rimGeo = new THREE.CylinderGeometry(wheelRadius * 0.72, wheelRadius * 0.72, wheelWidth + 0.015, 16);
+    // Diamond-Cut Two-Tone Bugatti Turbine Rim
+    const rimGeo = new THREE.CylinderGeometry(wheelRadius * 0.74, wheelRadius * 0.74, wheelWidth + 0.015, 20);
     const rimMat = new THREE.MeshStandardMaterial({
-      color: 0x24324d,
+      color: 0xe2e8f0,
       metalness: 0.96,
-      roughness: 0.12
+      roughness: 0.08
     });
     const rim = new THREE.Mesh(rimGeo, rimMat);
     rim.rotation.z = Math.PI / 2;
     wheelGroup.add(rim);
 
-    // Individual Turbine Spokes
-    const spokeMat = new THREE.MeshBasicMaterial({ color: 0x00d2ff });
+    // 10 Directional Turbine Spokes
     for (let s = 0; s < 5; s++) {
       const angle = (s / 5) * Math.PI * 2;
-      const spoke = new THREE.Mesh(new THREE.BoxGeometry(wheelRadius * 1.35, 0.02, 0.02), spokeMat);
+      const spoke = new THREE.Mesh(
+        new THREE.BoxGeometry(wheelRadius * 1.36, 0.025, 0.02),
+        new THREE.MeshStandardMaterial({ color: 0x00a8ff, metalness: 0.9, roughness: 0.1 })
+      );
       spoke.rotation.x = angle;
       wheelGroup.add(spoke);
     }
 
-    // Perforated Carbon-Ceramic Brake Rotor
-    const rotorMat = new THREE.MeshStandardMaterial({ color: 0x556677, metalness: 0.92, roughness: 0.25 });
-    const rotor = new THREE.Mesh(new THREE.CylinderGeometry(wheelRadius * 0.62, wheelRadius * 0.62, 0.04, 20), rotorMat);
+    // Center Bugatti EB Hub Cap
+    const hubCap = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, wheelWidth + 0.02, 16), chromeMaterial);
+    hubCap.rotation.z = Math.PI / 2;
+    wheelGroup.add(hubCap);
+
+    // Carbon-Ceramic Brake Rotor
+    const rotorMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.95, roughness: 0.2 });
+    const rotor = new THREE.Mesh(new THREE.CylinderGeometry(wheelRadius * 0.64, wheelRadius * 0.64, 0.04, 20), rotorMat);
     rotor.rotation.z = Math.PI / 2;
     wheelGroup.add(rotor);
 
-    // 6-Piston Brembo Caliper (Stays upright, does not spin with wheel)
-    const caliperMat = new THREE.MeshBasicMaterial({ color: pos.isFront ? 0xff2d55 : 0x00d2ff });
-    const caliper = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.14, 0.09), caliperMat);
+    // French Racing Blue / Red Bugatti Monobloc Caliper (Upright)
+    const caliperMat = new THREE.MeshStandardMaterial({
+      color: pos.isFront ? 0x0088ff : 0xff1744,
+      metalness: 0.65,
+      roughness: 0.2
+    });
+    const caliper = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, 0.09), caliperMat);
     caliper.position.set(pos.x > 0 ? pos.x - 0.06 : pos.x + 0.06, pos.y + wheelRadius * 0.28, pos.z);
     group.add(caliper);
 
@@ -657,7 +700,7 @@ function buildSculptedSupercar(group, carType, mode, wheelsList) {
 // HELPER: BUILD 3D AERO STREAMLINES IN THREE.JS
 // =========================================================================
 function build3DAeroStreamlines(group, linesRef) {
-  const lineCount = 20;
+  const lineCount = 22;
   linesRef.current = [];
 
   for (let i = 0; i < lineCount; i++) {
