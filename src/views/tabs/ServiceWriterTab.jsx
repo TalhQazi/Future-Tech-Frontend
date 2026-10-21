@@ -142,16 +142,20 @@ export const ServiceWriterTab = () => {
               outline: 'none'
             }}
           >
-            {repairOrders.map(ro => (
-              <option key={ro.id} value={ro.id}>
-                {ro.roNumber} • {ro.customer?.name || ro.customerName}
-              </option>
-            ))}
+            {repairOrders.length === 0 ? (
+              <option value="">No Active Repair Orders</option>
+            ) : (
+              repairOrders.map(ro => (
+                <option key={ro.id} value={ro.id}>
+                  {ro.roNumber} • {ro.customer?.name || ro.customerName}
+                </option>
+              ))
+            )}
           </select>
 
           <button
             onClick={handleSaveEstimate}
-            disabled={saving}
+            disabled={saving || !activeRo}
             style={{
               background: 'linear-gradient(135deg, #0070f3, #00d2ff)',
               border: 'none',
@@ -160,7 +164,8 @@ export const ServiceWriterTab = () => {
               borderRadius: '8px',
               fontSize: '13px',
               fontWeight: '700',
-              cursor: saving ? 'not-allowed' : 'pointer'
+              cursor: (saving || !activeRo) ? 'not-allowed' : 'pointer',
+              opacity: !activeRo ? 0.6 : 1
             }}
           >
             {saving ? 'Saving...' : '💾 Save & Dispatch Estimate'}
@@ -169,6 +174,11 @@ export const ServiceWriterTab = () => {
       </div>
 
       {/* RO Context Banner */}
+      {!activeRo && (
+        <div style={{ background: '#0a0f1d', padding: '36px 20px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)', textAlign: 'center', color: '#8fa0c0' }}>
+          No active repair orders in shop. Check in a vehicle to open an estimate builder.
+        </div>
+      )}
       {activeRo && (
         <div style={{
           background: '#0a0f1d',

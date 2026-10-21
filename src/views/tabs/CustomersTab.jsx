@@ -226,7 +226,9 @@ export const CustomersTab = ({ onSelectCustomer, onOpenCheckIn }) => {
               {filteredCustomers.length === 0 && (
                 <tr>
                   <td colSpan="6" style={{ padding: '36px', textAlign: 'center', color: '#8fa0c0' }}>
-                    No customer records found matching "{searchTerm}".
+                    {searchTerm 
+                      ? `No customer records found matching "${searchTerm}".` 
+                      : 'No customer accounts in database yet. Click "+ Add Customer" to register a client.'}
                   </td>
                 </tr>
               )}

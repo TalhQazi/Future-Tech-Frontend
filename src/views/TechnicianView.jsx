@@ -144,30 +144,36 @@ export const TechnicianView = () => {
           <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--ft-cyan)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             TECHNICIAN BAY QUEUE:
           </span>
-          <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto' }}>
-            {repairOrders.map(ro => {
-              const isSelected = ro.id === selectedRoId;
-              return (
-                <button
-                  key={ro.id}
-                  onClick={() => setSelectedRoId(ro.id)}
-                  style={{
-                    background: isSelected ? 'var(--ft-grad-brand)' : 'rgba(255, 255, 255, 0.04)',
-                    border: isSelected ? '1px solid rgba(199, 184, 255, 0.42)' : '1px solid var(--ft-line-2)',
-                    boxShadow: isSelected ? '0 2px 10px rgba(121, 87, 255, 0.35)' : 'none',
-                    color: isSelected ? 'var(--ft-text)' : 'var(--ft-text-soft)',
-                    padding: '0.45rem 0.95rem',
-                    borderRadius: '8px',
-                    fontWeight: 700,
-                    fontSize: '0.82rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  {ro.roNumber} ({ro.vehicle?.make || 'Job'})
-                </button>
-              );
-            })}
+          <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', alignItems: 'center' }}>
+            {repairOrders.length === 0 ? (
+              <span style={{ fontSize: '0.82rem', color: 'var(--ft-text-3)', fontStyle: 'italic' }}>
+                No active vehicles in bay queue
+              </span>
+            ) : (
+              repairOrders.map(ro => {
+                const isSelected = ro.id === selectedRoId;
+                return (
+                  <button
+                    key={ro.id}
+                    onClick={() => setSelectedRoId(ro.id)}
+                    style={{
+                      background: isSelected ? 'var(--ft-grad-brand)' : 'rgba(255, 255, 255, 0.04)',
+                      border: isSelected ? '1px solid rgba(199, 184, 255, 0.42)' : '1px solid var(--ft-line-2)',
+                      boxShadow: isSelected ? '0 2px 10px rgba(121, 87, 255, 0.35)' : 'none',
+                      color: isSelected ? 'var(--ft-text)' : 'var(--ft-text-soft)',
+                      padding: '0.45rem 0.95rem',
+                      borderRadius: '8px',
+                      fontWeight: 700,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    {ro.roNumber} ({ro.vehicle?.make || 'Job'})
+                  </button>
+                );
+              })
+            )}
           </div>
         </div>
 
@@ -246,15 +252,22 @@ export const TechnicianView = () => {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-            {inspection?.items?.map((item) => (
-              <div
-                key={item.id}
-                className="card-panel"
-                style={{
-                  padding: '1.25rem',
-                  borderLeft: `5px solid ${item.status === 'pass' ? 'var(--ft-success)' : item.status === 'attention' ? 'var(--ft-warning)' : 'var(--ft-danger)'}`
-                }}
-              >
+            {(!inspection?.items || inspection.items.length === 0) ? (
+              <div className="card-panel" style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--ft-text-3)' }}>
+                {repairOrders.length === 0 
+                  ? 'No active repair orders in shop. Check in a vehicle to open an inspection checklist.' 
+                  : 'Select an active repair order from the bay queue above to conduct a digital vehicle inspection.'}
+              </div>
+            ) : (
+              inspection.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="card-panel"
+                  style={{
+                    padding: '1.25rem',
+                    borderLeft: `5px solid ${item.status === 'pass' ? 'var(--ft-success)' : item.status === 'attention' ? 'var(--ft-warning)' : 'var(--ft-danger)'}`
+                  }}
+                >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
                   <div style={{ flex: '1 1 340px' }}>
                     <div style={{ fontSize: '0.72rem', color: 'var(--ft-cyan)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.04em' }}>
@@ -342,7 +355,7 @@ export const TechnicianView = () => {
                   </div>
                 )}
               </div>
-            ))}
+            )))}
           </div>
         </div>
       )}

@@ -223,7 +223,7 @@ export const CheckInModal = ({ isOpen, onClose }) => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="e.g. Elena, 555-0192, WA1VAAF..., or 8XYZ21"
+                placeholder="Search customer name, phone, VIN, or license plate..."
                 autoFocus
                 style={{
                   width: '100%',
@@ -452,7 +452,7 @@ export const CheckInModal = ({ isOpen, onClose }) => {
                     required
                     value={newVin}
                     onChange={(e) => handleVinLookup(e.target.value.toUpperCase())}
-                    placeholder="WA1VAAF75ND..."
+                    placeholder="17-character VIN..."
                     style={{ width: '100%', padding: '0.65rem', fontFamily: 'var(--ft-font-mono)' }}
                   />
                 </div>
@@ -474,7 +474,7 @@ export const CheckInModal = ({ isOpen, onClose }) => {
                     required
                     value={newMake}
                     onChange={(e) => setNewMake(e.target.value)}
-                    placeholder="Audi"
+                    placeholder="e.g. Toyota, Ford, Audi"
                     style={{ width: '100%', padding: '0.65rem' }}
                   />
                 </div>

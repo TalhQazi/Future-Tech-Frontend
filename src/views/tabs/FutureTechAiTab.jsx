@@ -243,8 +243,8 @@ export const FutureTechAiTab = () => {
     try {
       const res = await api.submitConfirmedFix({
         ...newFixForm,
-        vehicleMake: currentRo?.vehicle?.make || 'Audi',
-        vehicleModel: currentRo?.vehicle?.model || 'Q7'
+        vehicleMake: currentRo?.vehicle?.make || 'General',
+        vehicleModel: currentRo?.vehicle?.model || 'All Models'
       });
       if (res.success) {
         showToast('Confirmed Fix published to AutoMind Knowledge Base!', 'success');
@@ -359,7 +359,7 @@ export const FutureTechAiTab = () => {
               </span>
             </div>
             <div style={{ color: '#8fa0c0', fontSize: '13px', marginTop: '4px' }}>
-              Vehicle Target: <strong style={{ color: '#fff' }}>{currentRo?.vehicle ? `${currentRo.vehicle.year} ${currentRo.vehicle.make} ${currentRo.vehicle.model}` : '2022 Audi Q7 3.0T'}</strong> • VIN: <span style={{ fontFamily: 'monospace', color: '#00d2ff' }}>{currentRo?.vehicle?.vin || 'WA1VAAF75ND019284'}</span> • RO: <strong style={{ color: '#fff' }}>{currentRo?.roNumber || 'RO-2026-001'}</strong>
+              Vehicle Target: <strong style={{ color: '#fff' }}>{currentRo?.vehicle ? `${currentRo.vehicle.year} ${currentRo.vehicle.make} ${currentRo.vehicle.model}` : 'No Active Vehicle Selected'}</strong> • VIN: <span style={{ fontFamily: 'monospace', color: currentRo?.vehicle?.vin ? '#00d2ff' : '#8fa0c0' }}>{currentRo?.vehicle?.vin || 'Standby'}</span> • RO: <strong style={{ color: currentRo?.roNumber ? '#fff' : '#8fa0c0' }}>{currentRo?.roNumber || 'None'}</strong>
             </div>
           </div>
         </div>

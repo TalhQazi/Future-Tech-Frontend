@@ -261,7 +261,7 @@ export const RepairOrdersTab = ({ onOpenCheckIn, onSelectRo }) => {
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', paddingTop: '8px', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
                         <span style={{ fontSize: '11px', color: '#8fa0c0' }}>
-                          Tech: {ro.assignedTechName || 'Alex'}
+                          Tech: {ro.assignedTechName || ro.assignedTech?.name || 'Unassigned'}
                         </span>
 
                         <div style={{ display: 'flex', gap: '4px' }}>
@@ -341,23 +341,30 @@ export const RepairOrdersTab = ({ onOpenCheckIn, onSelectRo }) => {
               </tr>
             </thead>
             <tbody>
-              {repairOrders.map(ro => (
-                <tr key={ro.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}>
-                  <td style={{ padding: '14px 18px', color: '#00d2ff', fontWeight: '800' }}>
-                    {ro.roNumber}
+              {repairOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: 'center', padding: '36px', color: '#64748b' }}>
+                    No active repair orders in shop dispatch queue. Click "+ Create RO" above to check in a vehicle.
                   </td>
-                  <td style={{ padding: '14px 18px', color: '#fff', fontWeight: '700' }}>
-                    {ro.customer?.name || ro.customerName}
-                  </td>
-                  <td style={{ padding: '14px 18px', color: '#d0d8ea' }}>
-                    {ro.vehicle ? `${ro.vehicle.year} ${ro.vehicle.make} ${ro.vehicle.model}` : ro.vehicleSummary}
-                  </td>
-                  <td style={{ padding: '14px 18px', color: '#8fa0c0' }}>
-                    {ro.bayNumber || 'Unassigned'}
-                  </td>
-                  <td style={{ padding: '14px 18px', color: '#fff' }}>
-                    {ro.assignedTechName || 'Alex'}
-                  </td>
+                </tr>
+              ) : (
+                repairOrders.map(ro => (
+                  <tr key={ro.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}>
+                    <td style={{ padding: '14px 18px', color: '#00d2ff', fontWeight: '800' }}>
+                      {ro.roNumber}
+                    </td>
+                    <td style={{ padding: '14px 18px', color: '#fff', fontWeight: '700' }}>
+                      {ro.customer?.name || ro.customerName}
+                    </td>
+                    <td style={{ padding: '14px 18px', color: '#d0d8ea' }}>
+                      {ro.vehicle ? `${ro.vehicle.year} ${ro.vehicle.make} ${ro.vehicle.model}` : ro.vehicleSummary}
+                    </td>
+                    <td style={{ padding: '14px 18px', color: '#8fa0c0' }}>
+                      {ro.bayNumber || 'Unassigned'}
+                    </td>
+                    <td style={{ padding: '14px 18px', color: '#fff' }}>
+                      {ro.assignedTechName || ro.assignedTech?.name || 'Unassigned'}
+                    </td>
                   <td style={{ padding: '14px 18px' }}>
                     <select
                       value={ro.status}
@@ -397,7 +404,7 @@ export const RepairOrdersTab = ({ onOpenCheckIn, onSelectRo }) => {
                     </button>
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>

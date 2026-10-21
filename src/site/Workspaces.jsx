@@ -26,8 +26,17 @@ const AdvisorPreview = ({ repairOrders = [] }) => {
           <div className="wp-board__col" key={c.col}>
             <span className={`wp-board__head is-${c.tone}`}>{c.col}</span>
             <div className="wp-board__card">
-              <strong>{matchingRo?.roNumber || `RO-2026-08${idx + 1}`}</strong>
-              <span>{carDesc}</span>
+              {matchingRo ? (
+                <>
+                  <strong>{matchingRo.roNumber}</strong>
+                  <span>{carDesc}</span>
+                </>
+              ) : (
+                <>
+                  <strong style={{ opacity: 0.5 }}>Standby</strong>
+                  <span style={{ opacity: 0.5 }}>No active jobs</span>
+                </>
+              )}
             </div>
           </div>
         );
@@ -39,11 +48,15 @@ const AdvisorPreview = ({ repairOrders = [] }) => {
 const TechnicianPreview = ({ inspection }) => {
   const items = (inspection?.items && inspection.items.length > 0)
     ? inspection.items.slice(0, 3)
-    : [
-        { name: 'Powertrain & High-Output Ignition System', status: 'fail' },
-        { name: 'Tire Tread Depth & Wear Pattern', status: 'attention' },
-        { name: '12V AGM & Hybrid Traction Battery', status: 'pass' }
-      ];
+    : [];
+
+  if (items.length === 0) {
+    return (
+      <div style={{ padding: '1.25rem', textAlign: 'center', color: 'var(--ft-text-3)', fontSize: '0.8rem' }}>
+        No active vehicle inspection in progress · Standby for vehicle dispatch
+      </div>
+    );
+  }
 
   return (
     <ul className="wp-dvi">
@@ -62,9 +75,9 @@ const TechnicianPreview = ({ inspection }) => {
 };
 
 const ManagerPreview = ({ repairOrders = [] }) => {
-  const activeCount = repairOrders.filter(r => ['inspection', 'work_authorized', 'in_progress'].includes(r.status)).length || 3;
-  const readyCount = repairOrders.filter(r => r.status === 'ready_for_payment').length || 1;
-  const completedCount = repairOrders.filter(r => r.status === 'completed').length || 1;
+  const activeCount = repairOrders.filter(r => ['inspection', 'work_authorized', 'in_progress'].includes(r.status)).length;
+  const readyCount = repairOrders.filter(r => r.status === 'ready_for_payment').length;
+  const completedCount = repairOrders.filter(r => r.status === 'completed').length;
 
   const kpis = [
     { label: 'Active jobs', val: activeCount },
@@ -84,9 +97,9 @@ const ManagerPreview = ({ repairOrders = [] }) => {
       </div>
       <ul className="wp-mgr__roster">
         {[
-          ['Master Diagnostics', 78],
-          ['Suspension & Alignment', 42],
-          ['EV & High Voltage', 56]
+          ['Master Diagnostics', activeCount > 0 ? 78 : 0],
+          ['Suspension & Alignment', activeCount > 0 ? 42 : 0],
+          ['EV & High Voltage', activeCount > 0 ? 56 : 0]
         ].map(([title, w]) => (
           <li key={title}>
             <span>{title}</span>
@@ -103,32 +116,35 @@ const STEPS = ['Check-In', 'Digital Inspection', 'Estimate & Approval', 'Service
 const CustomerPreview = ({ estimate }) => {
   const lines = (estimate?.lines && estimate.lines.length > 0)
     ? estimate.lines.slice(0, 2)
-    : [
-        { description: 'Front Ceramic Brake Pad Set & Electronic Wear Sensors', lineTotal: 185.00, approved: true },
-        { description: '4-Wheel Precision Laser Computerized Alignment', lineTotal: 210.00, approved: false }
-      ];
+    : [];
 
   return (
     <div className="wp-cust">
       <ol className="wp-steps">
         {STEPS.map((s, i) => (
-          <li key={s} className={i < 4 ? 'is-done' : ''}>
-            <span>{i < 4 ? <Check size={11} aria-hidden="true" /> : i + 1}</span>
+          <li key={s} className={i < (estimate?.lines?.length ? 2 : 1) ? 'is-done' : ''}>
+            <span>{i < (estimate?.lines?.length ? 2 : 1) ? <Check size={11} aria-hidden="true" /> : i + 1}</span>
             <em>{s}</em>
           </li>
         ))}
       </ol>
-      <ul className="wp-lines">
-        {lines.map((l, i) => (
-          <li key={l.id || i} className={l.approved === false ? 'is-declined' : ''}>
-            <span>{l.description}</span>
-            <b>${(l.lineTotal || l.unitPrice || 0).toFixed(2)}</b>
-            <span className={`hv-chip ${l.approved ? 'hv-chip--ok' : 'hv-chip--no'}`}>
-              {l.approved ? <><Check size={12} aria-hidden="true" />Approved</> : 'Declined'}
-            </span>
-          </li>
-        ))}
-      </ul>
+      {lines.length === 0 ? (
+        <div style={{ color: 'var(--ft-text-3)', fontSize: '12px', textAlign: 'center', padding: '16px' }}>
+          No active estimate lines. Customer portal ready to receive itemized repair approvals.
+        </div>
+      ) : (
+        <ul className="wp-lines">
+          {lines.map((l, i) => (
+            <li key={l.id || i} className={l.approved === false ? 'is-declined' : ''}>
+              <span>{l.description}</span>
+              <b>${(l.lineTotal || l.unitPrice || 0).toFixed(2)}</b>
+              <span className={`hv-chip ${l.approved ? 'hv-chip--ok' : 'hv-chip--no'}`}>
+                {l.approved ? <><Check size={12} aria-hidden="true" />Approved</> : 'Declined'}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

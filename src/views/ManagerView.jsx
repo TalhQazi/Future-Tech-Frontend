@@ -23,10 +23,30 @@ export const ManagerView = () => {
   const readyToPay = repairOrders.filter(r => r.status === 'ready_for_payment').length;
   const completedJobs = repairOrders.filter(r => r.status === 'completed').length;
 
+  const shopEfficiency = (activeJobs + completedJobs > 0) ? '100%' : 'Standby';
+
   const techs = [
-    { id: 'usr_tech_1', name: 'Marcus Vance', title: 'Master Diagnostics', load: '3 Jobs Active', efficiency: '96%' },
-    { id: 'usr_tech_2', name: 'Jake Ramirez', title: 'Suspension & Alignment', load: '1 Job Active', efficiency: '92%' },
-    { id: 'usr_tech_3', name: 'Chloe Lin', title: 'EV & High Voltage', load: '1 Job Active', efficiency: '98%' }
+    { 
+      id: 'usr_tech_1', 
+      name: 'Master Technician', 
+      title: 'Master Diagnostics', 
+      load: `${repairOrders.filter(r => r.assignedTechId === 'usr_tech_1').length} Jobs Active`, 
+      efficiency: repairOrders.filter(r => r.assignedTechId === 'usr_tech_1').length > 0 ? 'Active' : 'Standby' 
+    },
+    { 
+      id: 'usr_tech_2', 
+      name: 'Diagnostic Specialist', 
+      title: 'Suspension & Alignment', 
+      load: `${repairOrders.filter(r => r.assignedTechId === 'usr_tech_2').length} Jobs Active`, 
+      efficiency: repairOrders.filter(r => r.assignedTechId === 'usr_tech_2').length > 0 ? 'Active' : 'Standby' 
+    },
+    { 
+      id: 'usr_tech_3', 
+      name: 'High-Voltage Tech', 
+      title: 'EV & High Voltage', 
+      load: `${repairOrders.filter(r => r.assignedTechId === 'usr_tech_3').length} Jobs Active`, 
+      efficiency: repairOrders.filter(r => r.assignedTechId === 'usr_tech_3').length > 0 ? 'Active' : 'Standby' 
+    }
   ];
 
   const handleAssignTech = async (roId, techId) => {
@@ -89,10 +109,12 @@ export const ManagerView = () => {
             <span>SHOP EFFICIENCY</span>
             <TrendingUp size={16} color="#2ED3A0" />
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--ft-success)', marginTop: '0.35rem' }}>
-            94.8%
+          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: shopEfficiency === 'Standby' ? 'var(--ft-text-3)' : 'var(--ft-success)', marginTop: '0.35rem' }}>
+            {shopEfficiency}
           </div>
-          <span className="badge badge-emerald" style={{ fontSize: '0.68rem', marginTop: '0.3rem' }}>+6.2% vs Industry Standard</span>
+          <span className="badge badge-emerald" style={{ fontSize: '0.68rem', marginTop: '0.3rem' }}>
+            {activeJobs + completedJobs > 0 ? 'Optimal Bay Throughput' : 'Bays Idle'}
+          </span>
         </div>
       </div>
 
@@ -145,37 +167,45 @@ export const ManagerView = () => {
               </tr>
             </thead>
             <tbody>
-              {repairOrders.map(ro => (
-                <tr key={ro.id} style={{ borderBottom: '1px solid var(--ft-line)' }}>
-                  <td style={{ padding: '0.85rem 1rem', fontWeight: 700, color: 'var(--ft-cyan)' }}>{ro.roNumber}</td>
-                  <td style={{ padding: '0.85rem 1rem', color: 'var(--ft-text)', fontWeight: 600 }}>
-                    {ro.vehicle?.year} {ro.vehicle?.make} {ro.vehicle?.model}
-                  </td>
-                  <td style={{ padding: '0.85rem 1rem', color: 'var(--ft-text-soft)' }}>
-                    {ro.customer?.name}
-                  </td>
-                  <td style={{ padding: '0.85rem 1rem' }}>
-                    <span className="badge badge-brand">{ro.bayNumber || 'Bay 1'}</span>
-                  </td>
-                  <td style={{ padding: '0.85rem 1rem', color: 'var(--ft-text)' }}>
-                    {ro.assignedTech?.name || 'Unassigned'}
-                  </td>
-                  <td style={{ padding: '0.85rem 1rem' }}>
-                    <StatusBadge status={ro.status} type="ro" />
-                  </td>
-                  <td style={{ padding: '0.85rem 1rem' }}>
-                    <button
-                      type="button"
-                      onClick={() => handleAssignTech(ro.id, 'usr_tech_1')}
-                      aria-label={`Reassign ${ro.roNumber}`}
-                      className="btn btn-secondary"
-                      style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem' }}
-                    >
-                      Reassign
-                    </button>
+              {repairOrders.length === 0 ? (
+                <tr>
+                  <td colSpan="7" style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--ft-text-3)' }}>
+                    No active repair orders in shop dispatch queue.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                repairOrders.map(ro => (
+                  <tr key={ro.id} style={{ borderBottom: '1px solid var(--ft-line)' }}>
+                    <td style={{ padding: '0.85rem 1rem', fontWeight: 700, color: 'var(--ft-cyan)' }}>{ro.roNumber}</td>
+                    <td style={{ padding: '0.85rem 1rem', color: 'var(--ft-text)', fontWeight: 600 }}>
+                      {ro.vehicle?.year} {ro.vehicle?.make} {ro.vehicle?.model}
+                    </td>
+                    <td style={{ padding: '0.85rem 1rem', color: 'var(--ft-text-soft)' }}>
+                      {ro.customer?.name}
+                    </td>
+                    <td style={{ padding: '0.85rem 1rem' }}>
+                      <span className="badge badge-brand">{ro.bayNumber || 'Bay 1'}</span>
+                    </td>
+                    <td style={{ padding: '0.85rem 1rem', color: 'var(--ft-text)' }}>
+                      {ro.assignedTech?.name || 'Unassigned'}
+                    </td>
+                    <td style={{ padding: '0.85rem 1rem' }}>
+                      <StatusBadge status={ro.status} type="ro" />
+                    </td>
+                    <td style={{ padding: '0.85rem 1rem' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleAssignTech(ro.id, 'usr_tech_1')}
+                        aria-label={`Reassign ${ro.roNumber}`}
+                        className="btn btn-secondary"
+                        style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem' }}
+                      >
+                        Reassign
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

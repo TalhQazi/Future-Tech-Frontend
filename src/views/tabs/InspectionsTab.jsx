@@ -113,11 +113,15 @@ export const InspectionsTab = () => {
               outline: 'none'
             }}
           >
-            {repairOrders.map(ro => (
-              <option key={ro.id} value={ro.id}>
-                {ro.roNumber} • {ro.vehicle ? `${ro.vehicle.year} ${ro.vehicle.make} ${ro.vehicle.model}` : ro.vehicleSummary}
-              </option>
-            ))}
+            {repairOrders.length === 0 ? (
+              <option value="">No Active Repair Orders</option>
+            ) : (
+              repairOrders.map(ro => (
+                <option key={ro.id} value={ro.id}>
+                  {ro.roNumber} • {ro.vehicle ? `${ro.vehicle.year} ${ro.vehicle.make} ${ro.vehicle.model}` : ro.vehicleSummary}
+                </option>
+              ))
+            )}
           </select>
 
           {inspection?.locked ? (

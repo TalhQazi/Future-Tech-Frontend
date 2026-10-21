@@ -4,13 +4,13 @@ import { api } from '../api/client.js';
 const ShopContext = createContext(null);
 
 const ROLE_USERS = {
-  advisor: { id: 'usr_advisor_1', name: 'Sarah Jenkins', role: 'advisor', email: 'advisor@futuretech.com' },
-  technician: { id: 'usr_tech_1', name: 'Marcus Vance', role: 'technician', specialty: 'Master Diagnostics / High Voltage', email: 'tech@futuretech.com' },
-  manager: { id: 'usr_manager_1', name: 'Dave Reynolds', role: 'manager', email: 'manager@futuretech.com' },
-  parts: { id: 'usr_parts_1', name: 'Frank Miller', role: 'parts', specialty: 'Parts Specialist & Catalog Manager', email: 'parts@futuretech.com' },
-  accounting: { id: 'usr_acct_1', name: 'Jessica Vance', role: 'accounting', specialty: 'Shop Controller & Billing', email: 'accounting@futuretech.com' },
+  advisor: { id: 'usr_advisor_1', name: 'Service Advisor', role: 'advisor', email: 'advisor@futuretech.com' },
+  technician: { id: 'usr_tech_1', name: 'Master Technician', role: 'technician', specialty: 'Master Diagnostics / High Voltage', email: 'tech@futuretech.com' },
+  manager: { id: 'usr_manager_1', name: 'Shop Manager', role: 'manager', email: 'manager@futuretech.com' },
+  parts: { id: 'usr_parts_1', name: 'Parts Specialist', role: 'parts', specialty: 'Parts Specialist & Catalog Manager', email: 'parts@futuretech.com' },
+  accounting: { id: 'usr_acct_1', name: 'Billing Controller', role: 'accounting', specialty: 'Shop Controller & Billing', email: 'accounting@futuretech.com' },
   admin: { id: 'usr_admin_1', name: 'Corporate Admin', role: 'admin', email: 'admin@futuretech.com' },
-  customer: { id: 'usr_cust_1', name: 'Elena Rostova', role: 'customer', email: 'customer@futuretech.com' }
+  customer: { id: 'usr_cust_1', name: 'Customer User', role: 'customer', email: 'customer@futuretech.com' }
 };
 
 export const ShopProvider = ({ children, initialRole = 'advisor' }) => {

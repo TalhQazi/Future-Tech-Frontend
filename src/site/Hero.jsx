@@ -81,7 +81,7 @@ const HeroVisual = () => {
                 <span className="hv-console__icon"><Cpu size={16} aria-hidden="true" /></span>
                 <div>
                   <p className="hv-console__title">FutureTech Diagnostics</p>
-                  <p className="hv-console__meta">RO-2026-081 · 2022 Audi Q7 3.0T Quattro</p>
+                  <p className="hv-console__meta">AutoMind CAN-FD Telemetry · High-Speed Bus Stream</p>
                 </div>
                 <span className="hv-live"><span className="live-dot" /> Live</span>
               </div>

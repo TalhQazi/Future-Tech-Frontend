@@ -65,16 +65,16 @@ const VisualCheckin = () => (
   <div className="mv-search">
     <div className="mv-search__field">
       <Search size={14} aria-hidden="true" />
-      <span>WA1VAAF75ND…</span>
+      <span>Scan 17-digit VIN or Plate…</span>
       <span className="mv-caret" />
     </div>
     <div className="mv-search__result">
-      <span className="mv-avatar">ER</span>
+      <span className="mv-avatar">VC</span>
       <span>
-        <strong>Elena Rostova</strong>
-        <small>2022 Audi Q7 · Plate 8XYZ21</small>
+        <strong>Valued Client</strong>
+        <small>Vehicle Profile · Active Telematics</small>
       </span>
-      <span className="mv-pill">VIP Gold Care</span>
+      <span className="mv-pill">Membership Tier</span>
     </div>
   </div>
 );

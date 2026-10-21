@@ -41,17 +41,25 @@ export const CustomerView = () => {
   const loadCustomerPortal = async () => {
     try {
       setLoading(true);
-      const res = await api.getCustomerById('cust_1');
-      if (res.success) {
-        setCustomerData(res.customer);
-        if (res.customer?.name) {
-          setSignatureName(res.customer.name);
+      const res = await api.getCustomers();
+      if (res.success && res.customers?.length > 0) {
+        const cust = res.customers[0];
+        const detailRes = await api.getCustomerById(cust.id);
+        if (detailRes.success) {
+          setCustomerData(detailRes.customer);
+          if (detailRes.customer?.name) {
+            setSignatureName(detailRes.customer.name);
+          }
+          if (detailRes.customer.vehicles?.length > 0) {
+            const veh = detailRes.customer.vehicles[0];
+            setSelectedVehicle(veh);
+            await loadVehicleRO(cust.id, veh.id);
+          }
         }
-        if (res.customer.vehicles?.length > 0) {
-          const veh = res.customer.vehicles[0];
-          setSelectedVehicle(veh);
-          await loadVehicleRO(veh.id);
-        }
+      } else {
+        setCustomerData(null);
+        setSelectedVehicle(null);
+        setActiveRO(null);
       }
     } catch (err) {
       console.error(err);
@@ -60,9 +68,9 @@ export const CustomerView = () => {
     }
   };
 
-  const loadVehicleRO = async (vehicleId) => {
+  const loadVehicleRO = async (customerId, vehicleId) => {
     try {
-      const roRes = await api.getRepairOrders({ customerId: 'cust_1' });
+      const roRes = await api.getRepairOrders(customerId ? { customerId } : {});
       if (roRes.success && roRes.repairOrders.length > 0) {
         const ro = roRes.repairOrders[0];
         setActiveRO(ro);
@@ -72,6 +80,10 @@ export const CustomerView = () => {
         ]);
         if (estRes.success) setEstimate(estRes.estimate);
         if (inspRes.success) setInspection(inspRes.inspection);
+      } else {
+        setActiveRO(null);
+        setEstimate(null);
+        setInspection(null);
       }
     } catch (err) {
       console.error(err);
@@ -137,6 +149,20 @@ export const CustomerView = () => {
     );
   }
 
+  if (!customerData) {
+    return (
+      <div className="card-panel" style={{ padding: '3.5rem 2rem', textAlign: 'center', maxWidth: '700px', margin: '2rem auto' }}>
+        <BrandLogo style={{ height: '52px', width: 'auto', margin: '0 auto 1.5rem' }} />
+        <h3 style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--ft-text)', marginBottom: '0.5rem' }}>
+          Customer Garage Portal
+        </h3>
+        <p style={{ color: 'var(--ft-text-2)', fontSize: '0.9rem', maxWidth: '440px', margin: '0 auto 1.5rem', lineHeight: 1.6 }}>
+          No active customer account detected. Once a service order is initiated at the front desk, your vehicle health dossier, estimate approvals, and live repair telemetry will appear here in real-time.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
       
@@ -163,7 +189,7 @@ export const CustomerView = () => {
               <span className="badge badge-brand">{customerData?.membership?.tier || 'VIP Gold Care'}</span>
             </div>
             <p style={{ fontSize: '0.85rem', color: 'var(--ft-text-2)' }}>
-              Account #: <span style={{ fontFamily: 'var(--ft-font-mono)', color: 'var(--ft-cyan)' }}>{customerData?.membership?.number || 'MBR-88291'}</span> • Benefits: 15% Labor Discount & Free Diagnostics Active
+              Account #: <span style={{ fontFamily: 'var(--ft-font-mono)', color: 'var(--ft-cyan)' }}>{customerData?.membership?.number || 'Standard'}</span> • Benefits: 15% Labor Discount & Free Diagnostics Active
             </p>
           </div>
         </div>
@@ -445,7 +471,7 @@ export const CustomerView = () => {
                 className="btn btn-emerald"
                 style={{ width: '100%', padding: '0.95rem', fontSize: '1rem', borderRadius: '10px' }}
               >
-                <CreditCard size={18} /> Pay Invoice Online (${estimate?.summary?.total?.toFixed(2) || '171.75'})
+                <CreditCard size={18} /> Pay Invoice Online (${(estimate?.summary?.total || 0).toFixed(2)})
               </button>
             )}
           </div>
@@ -474,7 +500,7 @@ export const CustomerView = () => {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--ft-line-2)', paddingTop: '0.5rem' }}>
                 <span style={{ color: 'var(--ft-text)', fontWeight: 700 }}>Total Amount Due</span>
-                <span style={{ color: 'var(--ft-success)', fontWeight: 700, fontSize: '1.2rem' }}>${estimate?.summary?.total || 171.75}</span>
+                <span style={{ color: 'var(--ft-success)', fontWeight: 700, fontSize: '1.2rem' }}>${(estimate?.summary?.total || 0).toFixed(2)}</span>
               </div>
             </div>
 

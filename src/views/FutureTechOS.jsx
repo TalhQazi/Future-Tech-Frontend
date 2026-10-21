@@ -85,28 +85,32 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
   const currentRo = selectedRO || (repairOrders.length > 0 ? repairOrders[0] : null);
 
   // Dynamic customer and vehicle data resolution from live context
-  const currentCustomer = currentRo?.customer || customers.find(c => c.id === currentRo?.customerId) || {
-    name: currentRo?.customerName || 'Customer Intake',
-    phone: currentRo?.customerPhone || '',
-    email: currentRo?.customerEmail || '',
-    memberSince: '2024',
-    membership: {
-      tier: currentRo?.membershipTier || 'Standard Member',
-      status: 'active',
-      benefits: ['Digital Multi-Point Inspection', 'Direct Technician Messaging']
-    }
-  };
+  const currentCustomer = currentRo
+    ? (currentRo.customer || customers.find(c => c.id === currentRo.customerId) || {
+        name: currentRo.customerName || 'Customer Intake',
+        phone: currentRo.customerPhone || '',
+        email: currentRo.customerEmail || '',
+        memberSince: '2024',
+        membership: {
+          tier: currentRo.membershipTier || 'Standard Member',
+          status: 'active',
+          benefits: ['Digital Multi-Point Inspection', 'Direct Technician Messaging']
+        }
+      })
+    : null;
 
-  const currentVehicle = currentRo?.vehicle || vehicles.find(v => v.id === currentRo?.vehicleId || v.vin === currentRo?.vin) || {
-    year: currentRo?.vehicleYear || new Date().getFullYear(),
-    make: currentRo?.vehicleMake || 'Vehicle',
-    model: currentRo?.vehicleModel || 'In Shop',
-    trim: currentRo?.vehicleTrim || 'Standard Trim',
-    vin: currentRo?.vin || 'VIN-PENDING',
-    image: '/dashboard/rav4_white.jpg',
-    mileage: currentRo?.mileageIn || 0,
-    status: 'In Shop'
-  };
+  const currentVehicle = currentRo
+    ? (currentRo.vehicle || vehicles.find(v => v.id === currentRo.vehicleId || v.vin === currentRo.vin) || {
+        year: currentRo.vehicleYear || new Date().getFullYear(),
+        make: currentRo.vehicleMake || 'Vehicle',
+        model: currentRo.vehicleModel || 'In Shop',
+        trim: currentRo.vehicleTrim || 'Standard Trim',
+        vin: currentRo.vin || 'VIN-PENDING',
+        image: '/dashboard/rav4_white.jpg',
+        mileage: currentRo.mileageIn || 0,
+        status: 'In Shop'
+      })
+    : null;
 
   // Live Kanban mapping from real database repairOrders
   const mapRoToColumn = (status) => {
@@ -207,38 +211,38 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
   const readyCards = filteredCards.filter(c => c.column === 'ready');
 
   // Dynamic Key Metrics & Revenue
-  const activeVehiclesCount = repairOrders.filter(r => r.status !== 'completed' && r.status !== 'invoiced').length || repairOrders.length;
+  const activeVehiclesCount = repairOrders.filter(r => r.status !== 'completed' && r.status !== 'invoiced').length;
   const completedTodayCount = repairOrders.filter(r => r.status === 'completed' || r.status === 'invoiced').length;
-  const todayRevenue = repairOrders.reduce((sum, r) => sum + (r.estimateTotal || 0), 0) + (repairOrders.length > 0 ? 1420 : 0);
+  const todayRevenue = repairOrders.reduce((sum, r) => sum + (r.estimateTotal || r.estimate?.summary?.total || 0), 0);
 
   // Dynamic Aerial Diagnostic Evaluation for current vehicle
   const dtcCount = currentRo?.dtcCount || (currentRo?.diagnostics?.dtcs?.length) || 0;
-  const inspectionSummary = currentRo?.inspectionSummary || { pass: 14, attention: 0, fail: 0 };
+  const inspectionSummary = currentRo?.inspectionSummary || { pass: 0, attention: 0, fail: 0 };
   const hasInspectionFails = (inspectionSummary.fail || 0) > 0;
 
   const engineDiag = dtcCount > 0
-    ? { ok: false, warn: true, label: `${dtcCount} Active DTCs`, msg: `Engine: ${dtcCount} fault codes detected on powertrain controller. Check Cyl 2 spark & fuel trim.` }
-    : { ok: true, warn: false, label: 'No Issues', msg: 'Engine: 0 Active DTCs. Fuel rail pressure and manifold pressure nominal.' };
+    ? { ok: false, warn: true, label: `${dtcCount} Active DTCs`, msg: `Engine: ${dtcCount} fault codes detected on powertrain controller. Check live diagnostics.` }
+    : { ok: true, warn: false, label: 'Nominal', msg: 'Engine: 0 Active DTCs. Fuel rail pressure and manifold pressure nominal.' };
 
-  const transDiag = { ok: true, warn: false, label: 'No Issues', msg: 'Transmission: Hydraulic line pressure adaptation optimal.' };
+  const transDiag = { ok: true, warn: false, label: 'Nominal', msg: 'Transmission: Hydraulic line pressure adaptation optimal.' };
 
   const brakesDiag = hasInspectionFails
     ? { ok: false, warn: true, label: `${inspectionSummary.fail} Items Worn`, msg: `Brakes: ${inspectionSummary.fail} friction wear items flagged during inspection.` }
-    : { ok: true, warn: false, label: 'Good (80%)', msg: 'Brakes: Pad thickness and rotor runout within OEM spec.' };
+    : { ok: true, warn: false, label: 'Nominal', msg: 'Brakes: Pad thickness and rotor runout within OEM spec.' };
 
-  const batteryDiag = { ok: true, warn: false, label: 'Good (87%)', msg: 'Battery: 12.6V, 540 CCA measured. Alternator charging at 14.1V.' };
-  const tiresDiag = { ok: true, warn: false, label: '34 PSI (Good)', msg: 'Tires: All 4 tires at 34 PSI. 6/32" tread depth remaining.' };
+  const batteryDiag = { ok: true, warn: false, label: 'Nominal (12.6V)', msg: 'Battery: 12.6V resting. Alternator charging verified.' };
+  const tiresDiag = { ok: true, warn: false, label: '34 PSI (Good)', msg: 'Tires: Tire pressures nominal across all 4 wheels.' };
   const emissionsDiag = { ok: true, warn: false, label: 'Ready', msg: 'Emissions: Evaporative system & O2 sensors ready.' };
-  const recallsDiag = (currentVehicle.make === 'Audi' || currentVehicle.make === 'Toyota')
-    ? { danger: true, label: '1 Open Bulletin', msg: `Recalls: Open technical service bulletin active for ${currentVehicle.make} ${currentVehicle.model}.` }
-    : { danger: false, label: '0 Recalls', msg: `Recalls: No active recalls found for VIN ${currentVehicle.vin}.` };
+  const recallsDiag = (currentVehicle?.make && ['Audi', 'Toyota'].includes(currentVehicle.make))
+    ? { danger: true, label: '1 Open Bulletin', msg: `Recalls: Technical service bulletin active for ${currentVehicle.make} ${currentVehicle.model}.` }
+    : { danger: false, label: '0 Recalls', msg: currentVehicle?.vin ? `Recalls: No active recalls found for VIN ${currentVehicle.vin}.` : 'Recalls: Standby' };
 
   const aiRecList = (currentRo?.customerComplaints && currentRo.customerComplaints.length > 0)
     ? currentRo.customerComplaints
     : ['Diagnostic scan & multi-point digital inspection', 'Comprehensive vehicle fluid evaluation'];
 
   const shopAlerts = repairOrders.slice(0, 3).map((ro, idx) => {
-    const veh = ro.vehicle || { year: 2022, make: 'Vehicle', model: '' };
+    const veh = ro.vehicle || { year: new Date().getFullYear(), make: 'Vehicle', model: '' };
     const concern = ro.customerComplaints?.[0] || ro.primaryConcern || 'Scheduled Diagnostic Service';
     const alertType = idx === 0 ? 'red' : idx === 1 ? 'gold' : 'gray';
     const title = idx === 0 
@@ -465,104 +469,123 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
               <article className="ft-card ft-customer-vehicle-card">
                 <div className="ft-card-header">
                   <span className="ft-card-title">Customer & Vehicle</span>
-                  <button type="button" className="ft-btn-edit" onClick={() => setActiveModal('edit-vehicle')}>
-                    Edit
+                  <button type="button" className="ft-btn-edit" onClick={onOpenCheckIn}>
+                    + Check In
                   </button>
                 </div>
 
-                {/* Customer Profile Row */}
-                <div className="ft-cust-profile-row">
-                  <div className="ft-cust-avatar-ring">
-                    <img 
-                      src={currentCustomer.avatar || '/dashboard/michael_avatar.jpg'} 
-                      alt={currentCustomer.name} 
-                    />
+                {!currentCustomer ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '36px 20px', textAlign: 'center', color: '#8fa0c0', flex: 1, minHeight: '320px' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(0, 210, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px', color: '#00d2ff' }}>
+                      <Car size={26} />
+                    </div>
+                    <div style={{ color: '#fff', fontWeight: '700', fontSize: '15px', marginBottom: '6px' }}>
+                      No Vehicle Currently in Bay
+                    </div>
+                    <div style={{ fontSize: '12px', maxWidth: '280px', lineHeight: 1.5, marginBottom: '16px', color: '#8fa0c0' }}>
+                      Check in a customer vehicle to open an active repair order and connect AutoMind diagnostics.
+                    </div>
+                    <button type="button" className="ft-btn-new-ro" onClick={onOpenCheckIn} style={{ padding: '8px 18px', fontSize: '12px' }}>
+                      <Plus size={14} /> Open New Repair Order
+                    </button>
                   </div>
-                  <div className="ft-cust-details">
-                    <div className="ft-cust-name-row">
-                      <span className="ft-cust-name">{currentCustomer.name}</span>
-                      <span className="ft-vip-badge">
-                        <Crown size={11} />
-                        {currentCustomer.membership?.tier || 'VIP Member'}
-                      </span>
-                    </div>
-                    <div className="ft-cust-meta-item">
-                      <span>{currentCustomer.phone}</span>
-                    </div>
-                    <div className="ft-cust-meta-item">
-                      <span>{currentCustomer.email}</span>
-                    </div>
-                    <div className="ft-cust-meta-item">
-                      <span>Member Since: {currentCustomer.memberSince || '2023'}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Vehicle Section */}
-                <div className="ft-veh-specs-box">
-                  <div className="ft-veh-title-row">
-                    <div className="ft-car-badge-icon">
-                      <Car size={16} />
-                    </div>
-                    <div>
-                      <div className="ft-veh-name">
-                        {currentVehicle.year} {currentVehicle.make} {currentVehicle.model}
+                ) : (
+                  <>
+                    {/* Customer Profile Row */}
+                    <div className="ft-cust-profile-row">
+                      <div className="ft-cust-avatar-ring">
+                        <img 
+                          src={currentCustomer.avatar || '/dashboard/michael_avatar.jpg'} 
+                          alt={currentCustomer.name} 
+                        />
                       </div>
-                      <div className="ft-veh-trim">
-                        {currentVehicle.trim || 'All-Wheel Drive • Standard Equipment'}
+                      <div className="ft-cust-details">
+                        <div className="ft-cust-name-row">
+                          <span className="ft-cust-name">{currentCustomer.name}</span>
+                          <span className="ft-vip-badge">
+                            <Crown size={11} />
+                            {currentCustomer.membership?.tier || 'Member'}
+                          </span>
+                        </div>
+                        <div className="ft-cust-meta-item">
+                          <span>{currentCustomer.phone}</span>
+                        </div>
+                        <div className="ft-cust-meta-item">
+                          <span>{currentCustomer.email}</span>
+                        </div>
+                        <div className="ft-cust-meta-item">
+                          <span>Member Since: {currentCustomer.memberSince || '2024'}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="ft-veh-vin">VIN: {currentVehicle.vin}</div>
 
-                  <div className="ft-veh-photo-wrapper">
-                    <img src={currentVehicle.image || '/dashboard/rav4_white.jpg'} alt={currentVehicle.model} />
-                  </div>
-                </div>
+                    {/* Vehicle Section */}
+                    <div className="ft-veh-specs-box">
+                      <div className="ft-veh-title-row">
+                        <div className="ft-car-badge-icon">
+                          <Car size={16} />
+                        </div>
+                        <div>
+                          <div className="ft-veh-name">
+                            {currentVehicle.year} {currentVehicle.make} {currentVehicle.model}
+                          </div>
+                          <div className="ft-veh-trim">
+                            {currentVehicle.trim || 'Standard Equipment'}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="ft-veh-vin">VIN: {currentVehicle.vin}</div>
 
-                {/* Stat Strip */}
-                <div className="ft-veh-stats-strip">
-                  <div className="ft-stat-cell">
-                    <span className="ft-stat-label">Current Mileage</span>
-                    <span className="ft-stat-val">
-                      {typeof currentVehicle.mileage === 'number' ? currentVehicle.mileage.toLocaleString() : (currentVehicle.mileage || '42,150')}
-                    </span>
-                  </div>
-                  <div className="ft-stat-cell">
-                    <span className="ft-stat-label">Next Service</span>
-                    <span className="ft-stat-val">
-                      {typeof currentVehicle.mileage === 'number' ? (currentVehicle.mileage + 5000).toLocaleString() : '48,000'}
-                    </span>
-                  </div>
-                  <div className="ft-stat-cell">
-                    <span className="ft-stat-label">Membership Plan</span>
-                    <span className="ft-stat-val">
-                      {currentCustomer.membership?.tier || 'VIP Gold Care'}
-                    </span>
-                  </div>
-                  <div className="ft-stat-cell">
-                    <span className="ft-stat-label">Status</span>
-                    <span className="ft-stat-val ft-badge-active">
-                      {currentVehicle.status || 'Active'}
-                    </span>
-                  </div>
-                </div>
+                      <div className="ft-veh-photo-wrapper">
+                        <img src={currentVehicle.image || '/dashboard/rav4_white.jpg'} alt={currentVehicle.model} />
+                      </div>
+                    </div>
 
-                {/* Bottom Quick Links */}
-                <div className="ft-veh-actions-row">
-                  <button type="button" className="ft-btn-subtle" onClick={() => setActiveModal('history')}>
-                    <Clock size={12} />
-                    <span>View History</span>
-                  </button>
-                  <button type="button" className="ft-btn-subtle" onClick={() => setActiveModal('schedule')}>
-                    <CalendarDays size={12} />
-                    <span>Service Schedule</span>
-                  </button>
-                  <button type="button" className="ft-btn-subtle" onClick={() => setActiveModal('details')}>
-                    <Car size={12} />
-                    <span>Vehicle Details</span>
-                  </button>
-                </div>
+                    {/* Stat Strip */}
+                    <div className="ft-veh-stats-strip">
+                      <div className="ft-stat-cell">
+                        <span className="ft-stat-label">Current Mileage</span>
+                        <span className="ft-stat-val">
+                          {typeof currentVehicle.mileage === 'number' ? currentVehicle.mileage.toLocaleString() : (currentVehicle.mileage || '0')}
+                        </span>
+                      </div>
+                      <div className="ft-stat-cell">
+                        <span className="ft-stat-label">Next Service</span>
+                        <span className="ft-stat-val">
+                          {typeof currentVehicle.mileage === 'number' ? (currentVehicle.mileage + 5000).toLocaleString() : '5,000'}
+                        </span>
+                      </div>
+                      <div className="ft-stat-cell">
+                        <span className="ft-stat-label">Membership Plan</span>
+                        <span className="ft-stat-val">
+                          {currentCustomer.membership?.tier || 'Standard'}
+                        </span>
+                      </div>
+                      <div className="ft-stat-cell">
+                        <span className="ft-stat-label">Status</span>
+                        <span className="ft-stat-val ft-badge-active">
+                          {currentVehicle.status || 'Active'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Bottom Quick Links */}
+                    <div className="ft-veh-actions-row">
+                      <button type="button" className="ft-btn-subtle" onClick={() => setActiveModal('history')}>
+                        <Clock size={12} />
+                        <span>View History</span>
+                      </button>
+                      <button type="button" className="ft-btn-subtle" onClick={() => setActiveModal('schedule')}>
+                        <CalendarDays size={12} />
+                        <span>Service Schedule</span>
+                      </button>
+                      <button type="button" className="ft-btn-subtle" onClick={() => setActiveModal('details')}>
+                        <Car size={12} />
+                        <span>Vehicle Details</span>
+                      </button>
+                    </div>
+                  </>
+                )}
               </article>
 
               {/* CARD 2: VEHICLE HEALTH & AI INSIGHTS */}
@@ -1047,8 +1070,8 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
                     <div className="ft-metric-icon-circle gold">
                       <Star size={16} />
                     </div>
-                    <div className="ft-metric-num">4.8</div>
-                    <div className="ft-metric-label">Avg. Customer Rating</div>
+                    <div className="ft-metric-num">{completedTodayCount > 0 ? '5.0' : '—'}</div>
+                    <div className="ft-metric-label">{completedTodayCount > 0 ? 'Avg. Customer Rating' : 'Rating (0 Completed)'}</div>
                   </div>
                 </div>
               </article>
@@ -1107,22 +1130,28 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
                 </div>
 
                 <div className="ft-alerts-list">
-                  {shopAlerts.map(alert => (
-                    <div 
-                      key={alert.id}
-                      className="ft-alert-row" 
-                      onClick={() => showToast(`${alert.title}: ${alert.desc}`, alert.type === 'red' ? 'error' : 'info')}
-                    >
-                      <div className={`ft-alert-icon ${alert.type}`}>
-                        {alert.type === 'red' ? <AlertTriangle size={15} /> : alert.type === 'gold' ? <Star size={15} /> : <AlertCircle size={15} />}
-                      </div>
-                      <div className="ft-alert-content">
-                        <span className="ft-alert-title">{alert.title}</span>
-                        <span className="ft-alert-desc">{alert.desc}</span>
-                      </div>
-                      <span className="ft-alert-time">{alert.time}</span>
+                  {shopAlerts.length === 0 ? (
+                    <div style={{ padding: '36px 16px', textAlign: 'center', color: '#8fa0c0', fontSize: '12px' }}>
+                      No active system alerts. All shop bays and telemetry nominal.
                     </div>
-                  ))}
+                  ) : (
+                    shopAlerts.map(alert => (
+                      <div 
+                        key={alert.id}
+                        className="ft-alert-row" 
+                        onClick={() => showToast(`${alert.title}: ${alert.desc}`, alert.type === 'red' ? 'error' : 'info')}
+                      >
+                        <div className={`ft-alert-icon ${alert.type}`}>
+                          {alert.type === 'red' ? <AlertTriangle size={15} /> : alert.type === 'gold' ? <Star size={15} /> : <AlertCircle size={15} />}
+                        </div>
+                        <div className="ft-alert-content">
+                          <span className="ft-alert-title">{alert.title}</span>
+                          <span className="ft-alert-desc">{alert.desc}</span>
+                        </div>
+                        <span className="ft-alert-time">{alert.time}</span>
+                      </div>
+                    ))
+                  )}
                 </div>
               </article>
             </section>
@@ -1215,13 +1244,13 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
             </div>
 
             <div style={{ padding: '1rem 0', fontSize: '0.85rem', color: '#cbd5e1' }}>
-              {activeModal === 'schedule' && `Select appointment date & service bay for ${currentCustomer.name}`}
-              {activeModal === 'add-note' && `Add internal technician or advisor inspection note to ${currentRo?.roNumber || 'RO'}`}
-              {activeModal === 'send-message' && `Send instant SMS update to ${currentCustomer.phone}`}
-              {activeModal === 'payment' && `Process payment terminal for ${currentRo?.roNumber || 'RO'} - Total: $428.50`}
-              {activeModal === 'history' && `Displaying previous maintenance records for VIN ${currentVehicle.vin}`}
-              {activeModal === 'details' && `Vehicle Specs: ${currentVehicle.year} ${currentVehicle.make} ${currentVehicle.model} • VIN ${currentVehicle.vin}`}
-              {activeModal === 'edit-vehicle' && `Edit vehicle and customer profile for ${currentCustomer.name}`}
+              {activeModal === 'schedule' && `Select appointment date & service bay for ${currentCustomer?.name || 'customer'}`}
+              {activeModal === 'add-note' && `Add internal technician or advisor inspection note to ${currentRo?.roNumber || 'active job'}`}
+              {activeModal === 'send-message' && `Send instant SMS update to ${currentCustomer?.phone || 'customer on file'}`}
+              {activeModal === 'payment' && `Process payment terminal for ${currentRo?.roNumber || 'RO'} - Total: $${(currentRo?.estimateTotal || currentRo?.estimate?.summary?.total || 0).toFixed(2)}`}
+              {activeModal === 'history' && `Displaying previous maintenance records for VIN ${currentVehicle?.vin || 'on file'}`}
+              {activeModal === 'details' && (currentVehicle ? `Vehicle Specs: ${currentVehicle.year} ${currentVehicle.make} ${currentVehicle.model} • VIN ${currentVehicle.vin}` : 'No vehicle selected')}
+              {activeModal === 'edit-vehicle' && `Edit vehicle and customer profile for ${currentCustomer?.name || 'new customer'}`}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.6rem', marginTop: '1rem' }}>
