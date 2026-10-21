@@ -220,13 +220,16 @@ export const Hero = () => (
           No second diagnostics app. No duplicate typing.
         </p>
 
-        <div className="hero__actions">
-          <a href="#platform" className="ft-btn ft-btn--primary ft-btn--lg">
-            <span>Explore the platform</span>
-            <ArrowDown size={18} aria-hidden="true" />
+        <div className="hero__actions" style={{ flexWrap: 'wrap', gap: '0.75rem' }}>
+          <a href="#/register" className="ft-btn ft-btn--primary ft-btn--lg">
+            <span>Register Account</span>
+            <ArrowUpRight size={18} aria-hidden="true" />
+          </a>
+          <a href="#/login" className="ft-btn ft-btn--secondary ft-btn--lg" style={{ background: 'rgba(255, 255, 255, 0.05)', color: '#fff', borderColor: 'rgba(255, 255, 255, 0.15)' }}>
+            <span>Sign In to Panel</span>
           </a>
           <a href="#/app" className="ft-btn ft-btn--ghost ft-btn--lg">
-            <span>Launch Shop OS</span>
+            <span>Live Workspace Demo</span>
             <ArrowUpRight size={18} aria-hidden="true" />
           </a>
         </div>

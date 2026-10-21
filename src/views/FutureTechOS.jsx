@@ -34,10 +34,13 @@ import {
   Star,
   ShieldCheck,
   Crown,
-  UserCheck
+  UserCheck,
+  UserPlus,
+  LogOut
 } from 'lucide-react';
 
 import { AdvisorView } from './AdvisorView.jsx';
+import { AuthView } from './AuthView.jsx';
 
 // Operational Tab Components
 import { CustomersTab } from './tabs/CustomersTab.jsx';
@@ -80,6 +83,8 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
   const [isScanning, setIsScanning] = useState(false);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState('register');
 
   // Active RO selected from live context or default to first RO in store
   const currentRo = selectedRO || (repairOrders.length > 0 ? repairOrders[0] : null);
@@ -315,20 +320,62 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
             <HelpCircle size={18} />
           </button>
 
+          <button 
+            type="button" 
+            className="ft-btn-register-user" 
+            title="Register New User to Any Panel"
+            onClick={() => {
+              setAuthModalMode('register');
+              setAuthModalOpen(true);
+            }}
+            style={{
+              background: 'linear-gradient(135deg, rgba(0, 210, 255, 0.15), rgba(168, 85, 247, 0.2))',
+              border: '1px solid rgba(0, 210, 255, 0.4)',
+              color: '#00d2ff',
+              padding: '6px 12px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: '700',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer'
+            }}
+          >
+            <UserPlus size={14} />
+            <span>+ Register User</span>
+          </button>
+
           <div 
             className="ft-advisor-profile" 
-            title="Open Advisor Board"
+            title="Switch User / Account Profile"
             onClick={() => { 
-              setActiveTab('Advisor Board'); 
-              showToast(`Active Advisor: ${currentUser?.name || 'Service Advisor'}`, 'info'); 
+              setAuthModalMode('login');
+              setAuthModalOpen(true);
             }}
+            style={{ cursor: 'pointer' }}
           >
             <div className="ft-advisor-avatar">{currentUser?.name ? currentUser.name.split(' ').map(n => n[0]).join('') : 'SA'}</div>
             <div className="ft-advisor-meta">
               <span className="ft-advisor-name">{currentUser?.name || 'Service Advisor'}</span>
-              <span className="ft-advisor-role">{currentUser?.role === 'technician' ? 'Master Tech' : 'Service Advisor'}</span>
+              <span className="ft-advisor-role">{currentUser?.role ? currentUser.role.toUpperCase() : 'ADVISOR'}</span>
             </div>
           </div>
+
+          <button 
+            type="button" 
+            className="ft-icon-btn" 
+            title="Sign Out of Shop OS"
+            onClick={() => {
+              if (window.confirm('Sign out of active session?')) {
+                localStorage.removeItem('ft_user');
+                localStorage.removeItem('ft_token');
+                window.location.hash = '#/login';
+              }
+            }}
+          >
+            <LogOut size={16} color="#f87171" />
+          </button>
         </div>
       </header>
 
@@ -1279,6 +1326,34 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
                 Confirm
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* User Registration & Panel Authentication Modal */}
+      {authModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(4, 7, 15, 0.88)',
+          backdropFilter: 'blur(12px)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 2000,
+          padding: '16px',
+          overflowY: 'auto'
+        }}>
+          <div style={{ width: '100%', maxWidth: '820px', maxHeight: '92vh', overflowY: 'auto' }}>
+            <AuthView
+              initialMode={authModalMode}
+              isModal={true}
+              onClose={() => setAuthModalOpen(false)}
+              onAuthSuccess={() => setAuthModalOpen(false)}
+            />
           </div>
         </div>
       )}

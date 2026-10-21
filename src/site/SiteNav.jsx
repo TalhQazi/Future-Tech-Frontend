@@ -70,7 +70,29 @@ export const SiteNav = () => {
           </ul>
         </nav>
 
-        <div className="site-nav__actions">
+        <div className="site-nav__actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <a
+            href="#/login"
+            className="site-nav__link"
+            style={{ fontSize: '13px', fontWeight: '700', color: '#8fa0c0', padding: '6px 12px' }}
+          >
+            Sign In
+          </a>
+          <a
+            href="#/register"
+            style={{
+              fontSize: '13px',
+              fontWeight: '700',
+              color: '#00d2ff',
+              background: 'rgba(0, 210, 255, 0.1)',
+              border: '1px solid rgba(0, 210, 255, 0.3)',
+              borderRadius: '8px',
+              padding: '6px 12px',
+              textDecoration: 'none'
+            }}
+          >
+            Register
+          </a>
           <a href="#/app" className="ft-btn ft-btn--primary ft-btn--sm site-nav__cta">
             <span>Launch Shop OS</span>
             <ArrowUpRight size={16} aria-hidden="true" />
@@ -108,10 +130,18 @@ export const SiteNav = () => {
               </li>
             ))}
           </ul>
-          <a href="#/app" className="ft-btn ft-btn--primary ft-btn--block" onClick={close}>
-            Launch Shop OS
-            <ArrowUpRight size={18} aria-hidden="true" />
-          </a>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
+            <a href="#/login" className="ft-btn ft-btn--secondary ft-btn--block" onClick={close}>
+              Sign In to Panel
+            </a>
+            <a href="#/register" className="ft-btn ft-btn--secondary ft-btn--block" style={{ borderColor: 'rgba(0, 210, 255, 0.4)', color: '#00d2ff' }} onClick={close}>
+              Register New Account
+            </a>
+            <a href="#/app" className="ft-btn ft-btn--primary ft-btn--block" onClick={close}>
+              Launch Shop OS
+              <ArrowUpRight size={18} aria-hidden="true" />
+            </a>
+          </div>
         </nav>
       </div>
       <button

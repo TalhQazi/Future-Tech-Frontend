@@ -72,6 +72,17 @@ class ApiClient {
   }
 
   // Auth & Identity
+  async register({ name, email, password, role = 'advisor', phone = '', specialty = '' }) {
+    const data = await this.request('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, password, role, phone, specialty })
+    });
+    if (data.token) {
+      this.setToken(data.token, data.refreshToken);
+    }
+    return data;
+  }
+
   async login(email, password, role, mfaCode) {
     const data = await this.request('/auth/login', {
       method: 'POST',

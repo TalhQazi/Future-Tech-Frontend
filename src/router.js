@@ -1,11 +1,16 @@
 import { useEffect, useState } from 'react';
 
-export const ROLES = ['advisor', 'technician', 'manager', 'customer'];
+export const ROLES = ['advisor', 'technician', 'manager', 'customer', 'parts', 'accounting', 'admin'];
 
 // Hash routes keep the app deployable as static files without server rewrites.
-// "#/app" and "#/app/<role>" open the Shop OS; any other hash (e.g. "#platform")
-// is an in-page anchor on the marketing site.
+// "#/login", "#/register", "#/app" and "#/app/<role>" open specific views.
 export const parseRoute = (hash = window.location.hash) => {
+  if (hash === '#/login' || hash === '#/signin') {
+    return { name: 'auth', mode: 'login' };
+  }
+  if (hash === '#/register' || hash === '#/signup') {
+    return { name: 'auth', mode: 'register' };
+  }
   const match = hash.match(/^#\/app(?:\/([a-z]+))?\/?$/);
   if (match) {
     const role = ROLES.includes(match[1]) ? match[1] : null;
@@ -15,6 +20,7 @@ export const parseRoute = (hash = window.location.hash) => {
 };
 
 export const appHref = (role) => (role ? `#/app/${role}` : '#/app');
+export const authHref = (mode = 'login') => `#/${mode}`;
 
 export const useHashRoute = () => {
   const [route, setRoute] = useState(() => parseRoute());

@@ -11,9 +11,11 @@ import { useHashRoute, appHref } from './router.js';
 import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
 
 import { FutureTechOS } from './views/FutureTechOS.jsx';
+import { AuthView } from './views/AuthView.jsx';
 
 const APP_TITLE = 'Shop OS | FutureTech 2.0 AI';
 const SITE_TITLE = 'FutureTech 2.0 | Shop OS with Built-In Vehicle Diagnostics';
+const AUTH_TITLE = 'Authentication & Registration | FutureTech 2.0';
 
 const ShopApp = () => {
   const { currentUser, toast, error } = useShop();
@@ -59,9 +61,17 @@ export default function App() {
   const route = useHashRoute();
 
   useEffect(() => {
-    document.title = route.name === 'app' ? APP_TITLE : SITE_TITLE;
-    if (route.name === 'app') window.scrollTo({ top: 0, behavior: 'instant' });
+    document.title = route.name === 'app' ? APP_TITLE : route.name === 'auth' ? AUTH_TITLE : SITE_TITLE;
+    if (route.name === 'app' || route.name === 'auth') window.scrollTo({ top: 0, behavior: 'instant' });
   }, [route.name]);
+
+  if (route.name === 'auth') {
+    return (
+      <ShopProvider>
+        <AuthView initialMode={route.mode || 'login'} />
+      </ShopProvider>
+    );
+  }
 
   if (route.name === 'app') {
     return (
