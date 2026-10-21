@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import './site.css';
 import { SiteNav } from './SiteNav.jsx';
 import { Hero } from './Hero.jsx';
+import { CarShowcase } from './CarShowcase.jsx';
 import { Intro, Platform } from './Platform.jsx';
 import { Workspaces } from './Workspaces.jsx';
 import { Diagnostics, Workflow, Reasons } from './Story.jsx';
@@ -29,6 +30,7 @@ export const LandingPage = () => {
       <SiteNav />
       <main id="main" tabIndex={-1}>
         <Hero />
+        <CarShowcase />
         <Intro />
         <Platform />
         <Workspaces />

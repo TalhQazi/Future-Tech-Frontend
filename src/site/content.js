@@ -23,6 +23,7 @@ import {
 
 export const NAV_LINKS = [
   { id: 'platform', label: 'Platform' },
+  { id: 'vehicle-dynamics', label: 'Car Telematics' },
   { id: 'workspaces', label: 'Workspaces' },
   { id: 'diagnostics', label: 'Diagnostics' },
   { id: 'workflow', label: 'Workflow' },

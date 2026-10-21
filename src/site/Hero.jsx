@@ -86,6 +86,88 @@ const HeroVisual = () => {
                 <span className="hv-live"><span className="live-dot" /> Live</span>
               </div>
 
+              {/* Dynamic Animated Car Telemetry Hologram */}
+              <div style={{
+                position: 'relative',
+                margin: '0.85em 0',
+                padding: '0.65em 0.85em',
+                borderRadius: '0.9em',
+                background: 'rgba(7, 11, 22, 0.85)',
+                border: '1px solid rgba(0, 210, 255, 0.2)',
+                overflow: 'hidden'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3em', fontSize: '0.78em' }}>
+                  <span style={{ color: '#00d2ff', fontWeight: '700', letterSpacing: '0.04em' }}>
+                    CAN BUS · 2024 PORSCHE 911 GT3 RS
+                  </span>
+                  <span style={{ color: '#ff5d7d', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ff5d7d', display: 'inline-block', animation: 'car-blink 1s infinite' }} />
+                    CYL 2 FAULT NODE
+                  </span>
+                </div>
+
+                {/* Animated Vehicle Silhouette & Laser Scan */}
+                <div style={{ position: 'relative', width: '100%', height: '52px' }}>
+                  <svg viewBox="0 0 340 70" preserveAspectRatio="xMidYMid meet" style={{ width: '100%', height: '100%' }}>
+                    <defs>
+                      <linearGradient id="heroCarGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="#7957ff" />
+                        <stop offset="60%" stopColor="#00d2ff" />
+                        <stop offset="100%" stopColor="#36d6f5" />
+                      </linearGradient>
+                    </defs>
+
+                    {/* Car Silhouette Wireframe */}
+                    <path 
+                      d="M 30 52 
+                         C 35 44, 45 38, 65 35 
+                         C 90 32, 110 22, 140 18 
+                         C 185 14, 235 18, 260 26 
+                         C 285 34, 305 40, 315 48 
+                         L 310 52 
+                         C 298 52, 288 44, 265 44 
+                         C 242 44, 232 52, 220 52 
+                         L 125 52 
+                         C 113 52, 103 44, 80 44 
+                         C 57 44, 47 52, 35 52 Z" 
+                      fill="rgba(0, 210, 255, 0.08)" 
+                      stroke="url(#heroCarGrad)" 
+                      strokeWidth="1.8" 
+                    />
+
+                    {/* Windshield & Cabin */}
+                    <path d="M 125 24 C 145 20, 185 18, 220 22 C 235 24, 248 30, 255 35 L 125 35 Z" fill="rgba(0, 210, 255, 0.18)" stroke="#00d2ff" strokeWidth="1" />
+
+                    {/* Fault Indicator Pulsing Node at Cylinder 2 */}
+                    <circle cx="152" cy="38" r="6" fill="rgba(255, 93, 125, 0.3)" stroke="#ff2d55" strokeWidth="1.5">
+                      <animate attributeName="r" values="3;7;3" dur="1.2s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="1;0.4;1" dur="1.2s" repeatCount="indefinite" />
+                    </circle>
+                    <circle cx="152" cy="38" r="2.5" fill="#ff5d7d" />
+
+                    {/* Front Wheel */}
+                    <g transform="translate(265, 48)">
+                      <circle cx="0" cy="0" r="14" fill="#070c17" stroke="#00d2ff" strokeWidth="2" />
+                      <line x1="-10" y1="0" x2="10" y2="0" stroke="#7957ff" strokeWidth="1.5" />
+                      <line x1="0" y1="-10" x2="0" y2="10" stroke="#7957ff" strokeWidth="1.5" />
+                    </g>
+
+                    {/* Rear Wheel */}
+                    <g transform="translate(80, 48)">
+                      <circle cx="0" cy="0" r="14" fill="#070c17" stroke="#ff2d55" strokeWidth="2" />
+                      <line x1="-10" y1="0" x2="10" y2="0" stroke="#7957ff" strokeWidth="1.5" />
+                      <line x1="0" y1="-10" x2="0" y2="10" stroke="#7957ff" strokeWidth="1.5" />
+                    </g>
+
+                    {/* Sweeping Blue Scanning Laser */}
+                    <line x1="0" y1="10" x2="0" y2="58" stroke="#00ffaa" strokeWidth="2" opacity="0.8">
+                      <animate attributeName="x1" values="20;320;20" dur="3.5s" repeatCount="indefinite" />
+                      <animate attributeName="x2" values="20;320;20" dur="3.5s" repeatCount="indefinite" />
+                    </line>
+                  </svg>
+                </div>
+              </div>
+
               <div className="hv-dtc">
                 <span className="hv-dtc__code">P0302</span>
                 <div className="hv-dtc__text">
