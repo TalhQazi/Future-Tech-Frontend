@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://future-tech-backend-blush.vercel.app/api/v1';
 
 class ApiClient {
   constructor() {
