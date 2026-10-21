@@ -1,91 +1,137 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { ArrowUpRight, Check, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 import { ROLES } from './content.js';
 import { appHref } from '../router.js';
+import { api } from '../api/client.js';
 
-/* ---- Role previews (decorative) ---------------------------------------- */
+/* ---- Role previews (live data from backend) ------------------------------ */
 
-const AdvisorPreview = () => (
-  <div className="wp-board">
-    {[
-      { col: 'In Inspection', ro: 'RO-2026-082', car: '2021 Ford F-150 PowerBoost', tone: 'attn' },
-      { col: 'Estimate Pending', ro: 'RO-2026-083', car: '2020 Toyota RAV4 Hybrid', tone: 'cyan' },
-      { col: 'Authorized / Bay', ro: 'RO-2026-081', car: '2022 Audi Q7 3.0T', tone: 'ok' },
-      { col: 'Ready for Pay', ro: 'RO-2026-084', car: '2023 Tesla Model Y', tone: 'violet' }
-    ].map((c) => (
-      <div className="wp-board__col" key={c.ro}>
-        <span className={`wp-board__head is-${c.tone}`}>{c.col}</span>
-        <div className="wp-board__card">
-          <strong>{c.ro}</strong>
-          <span>{c.car}</span>
-        </div>
-      </div>
-    ))}
-  </div>
-);
+const AdvisorPreview = ({ repairOrders = [] }) => {
+  const columns = [
+    { col: 'In Inspection', tone: 'attn', status: 'inspection' },
+    { col: 'Estimate Pending', tone: 'cyan', status: 'estimate_pending' },
+    { col: 'Authorized / Bay', tone: 'ok', status: 'work_authorized' },
+    { col: 'Ready for Pay', tone: 'violet', status: 'ready_for_payment' }
+  ];
 
-const TechnicianPreview = () => (
-  <ul className="wp-dvi">
-    {[
-      { name: 'Ignition System & Coil Packs', status: 'fail' },
-      { name: 'Tire Tread Depth & Condition', status: 'attention' },
-      { name: '12V AGM & 48V Hybrid Battery', status: 'pass' }
-    ].map((item) => (
-      <li key={item.name}>
-        <span className="wp-dvi__name">{item.name}</span>
-        <span className="wp-dvi__btns">
-          <span className={item.status === 'pass' ? 'is-pass' : ''}><CheckCircle2 size={13} aria-hidden="true" />Pass</span>
-          <span className={item.status === 'attention' ? 'is-attn' : ''}><AlertTriangle size={13} aria-hidden="true" />Caution</span>
-          <span className={item.status === 'fail' ? 'is-fail' : ''}><XCircle size={13} aria-hidden="true" />Fail</span>
-        </span>
-      </li>
-    ))}
-  </ul>
-);
+  return (
+    <div className="wp-board">
+      {columns.map((c, idx) => {
+        const matchingRo = repairOrders.find(ro => ro.status === c.status || (c.status === 'work_authorized' && ro.status === 'in_progress')) || repairOrders[idx];
+        const carDesc = matchingRo?.vehicle 
+          ? `${matchingRo.vehicle.year} ${matchingRo.vehicle.make} ${matchingRo.vehicle.model}` 
+          : (matchingRo?.vehicleSummary || 'Vehicle in Service');
 
-const ManagerPreview = () => (
-  <div className="wp-mgr">
-    <div className="wp-mgr__kpis">
-      {['Active jobs', 'Pending checkout', 'Completed'].map((k, i) => (
-        <div key={k} style={{ '--k': i }}>
-          <span>{k}</span>
-          <i />
-        </div>
-      ))}
+        return (
+          <div className="wp-board__col" key={c.col}>
+            <span className={`wp-board__head is-${c.tone}`}>{c.col}</span>
+            <div className="wp-board__card">
+              <strong>{matchingRo?.roNumber || `RO-2026-08${idx + 1}`}</strong>
+              <span>{carDesc}</span>
+            </div>
+          </div>
+        );
+      })}
     </div>
-    <ul className="wp-mgr__roster">
-      {[
-        ['Master Diagnostics', 78],
-        ['Suspension & Alignment', 42],
-        ['EV & High Voltage', 56]
-      ].map(([title, w]) => (
-        <li key={title}>
-          <span>{title}</span>
-          <span className="wp-mgr__bar"><span style={{ '--w': `${w}%` }} /></span>
+  );
+};
+
+const TechnicianPreview = ({ inspection }) => {
+  const items = (inspection?.items && inspection.items.length > 0)
+    ? inspection.items.slice(0, 3)
+    : [
+        { name: 'Powertrain & High-Output Ignition System', status: 'fail' },
+        { name: 'Tire Tread Depth & Wear Pattern', status: 'attention' },
+        { name: '12V AGM & Hybrid Traction Battery', status: 'pass' }
+      ];
+
+  return (
+    <ul className="wp-dvi">
+      {items.map((item) => (
+        <li key={item.name}>
+          <span className="wp-dvi__name">{item.name}</span>
+          <span className="wp-dvi__btns">
+            <span className={item.status === 'pass' ? 'is-pass' : ''}><CheckCircle2 size={13} aria-hidden="true" />Pass</span>
+            <span className={item.status === 'attention' ? 'is-attn' : ''}><AlertTriangle size={13} aria-hidden="true" />Caution</span>
+            <span className={item.status === 'fail' ? 'is-fail' : ''}><XCircle size={13} aria-hidden="true" />Fail</span>
+          </span>
         </li>
       ))}
     </ul>
-  </div>
-);
+  );
+};
+
+const ManagerPreview = ({ repairOrders = [] }) => {
+  const activeCount = repairOrders.filter(r => ['inspection', 'work_authorized', 'in_progress'].includes(r.status)).length || 3;
+  const readyCount = repairOrders.filter(r => r.status === 'ready_for_payment').length || 1;
+  const completedCount = repairOrders.filter(r => r.status === 'completed').length || 1;
+
+  const kpis = [
+    { label: 'Active jobs', val: activeCount },
+    { label: 'Pending checkout', val: readyCount },
+    { label: 'Completed', val: completedCount }
+  ];
+
+  return (
+    <div className="wp-mgr">
+      <div className="wp-mgr__kpis">
+        {kpis.map((k, i) => (
+          <div key={k.label} style={{ '--k': i }}>
+            <span>{k.label} ({k.val})</span>
+            <i />
+          </div>
+        ))}
+      </div>
+      <ul className="wp-mgr__roster">
+        {[
+          ['Master Diagnostics', 78],
+          ['Suspension & Alignment', 42],
+          ['EV & High Voltage', 56]
+        ].map(([title, w]) => (
+          <li key={title}>
+            <span>{title}</span>
+            <span className="wp-mgr__bar"><span style={{ '--w': `${w}%` }} /></span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 const STEPS = ['Check-In', 'Digital Inspection', 'Estimate & Approval', 'Service In Progress', 'Ready for Pickup'];
 
-const CustomerPreview = () => (
-  <div className="wp-cust">
-    <ol className="wp-steps">
-      {STEPS.map((s, i) => (
-        <li key={s} className={i < 4 ? 'is-done' : ''}>
-          <span>{i < 4 ? <Check size={11} aria-hidden="true" /> : i + 1}</span>
-          <em>{s}</em>
-        </li>
-      ))}
-    </ol>
-    <ul className="wp-lines">
-      <li><span>Front Ceramic Brake Pad Set</span><b>$185.00</b><span className="hv-chip hv-chip--ok"><Check size={12} aria-hidden="true" />Approved</span></li>
-      <li className="is-declined"><span>4-Wheel Laser Alignment</span><b>$210.00</b><span className="hv-chip hv-chip--no">Declined</span></li>
-    </ul>
-  </div>
-);
+const CustomerPreview = ({ estimate }) => {
+  const lines = (estimate?.lines && estimate.lines.length > 0)
+    ? estimate.lines.slice(0, 2)
+    : [
+        { description: 'Front Ceramic Brake Pad Set & Electronic Wear Sensors', lineTotal: 185.00, approved: true },
+        { description: '4-Wheel Precision Laser Computerized Alignment', lineTotal: 210.00, approved: false }
+      ];
+
+  return (
+    <div className="wp-cust">
+      <ol className="wp-steps">
+        {STEPS.map((s, i) => (
+          <li key={s} className={i < 4 ? 'is-done' : ''}>
+            <span>{i < 4 ? <Check size={11} aria-hidden="true" /> : i + 1}</span>
+            <em>{s}</em>
+          </li>
+        ))}
+      </ol>
+      <ul className="wp-lines">
+        {lines.map((l, i) => (
+          <li key={l.id || i} className={l.approved === false ? 'is-declined' : ''}>
+            <span>{l.description}</span>
+            <b>${(l.lineTotal || l.unitPrice || 0).toFixed(2)}</b>
+            <span className={`hv-chip ${l.approved ? 'hv-chip--ok' : 'hv-chip--no'}`}>
+              {l.approved ? <><Check size={12} aria-hidden="true" />Approved</> : 'Declined'}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 const PREVIEWS = {
   advisor: AdvisorPreview,
@@ -96,7 +142,23 @@ const PREVIEWS = {
 
 export const Workspaces = () => {
   const [selected, setSelected] = useState(ROLES[0].id);
+  const [liveOrders, setLiveOrders] = useState([]);
+  const [liveInspection, setLiveInspection] = useState(null);
+  const [liveEstimate, setLiveEstimate] = useState(null);
   const tabRefs = useRef({});
+
+  useEffect(() => {
+    api.getRepairOrders()
+      .then(res => {
+        if (res.success && res.repairOrders && res.repairOrders.length > 0) {
+          setLiveOrders(res.repairOrders);
+          const firstRo = res.repairOrders[0];
+          api.getInspection(firstRo.id).then(r => r.success && setLiveInspection(r.inspection)).catch(() => {});
+          api.getEstimate(firstRo.id).then(r => r.success && setLiveEstimate(r.estimate)).catch(() => {});
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const onKeyDown = (e, index) => {
     const keys = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };
@@ -187,7 +249,11 @@ export const Workspaces = () => {
                     <em>Shop OS · {role.label}</em>
                   </div>
                   <div className="ws__screen">
-                    <Preview />
+                    <Preview 
+                      repairOrders={liveOrders}
+                      inspection={liveInspection}
+                      estimate={liveEstimate}
+                    />
                   </div>
                 </div>
               </div>

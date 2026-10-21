@@ -27,7 +27,7 @@ export const CustomerView = () => {
   const [loading, setLoading] = useState(true);
 
   // Digital Signature & Approval
-  const [signatureName, setSignatureName] = useState('Elena Rostova');
+  const [signatureName, setSignatureName] = useState('');
   const [isSubmittingApproval, setIsSubmittingApproval] = useState(false);
   const [showPayModal, setShowPayModal] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
@@ -44,6 +44,9 @@ export const CustomerView = () => {
       const res = await api.getCustomerById('cust_1');
       if (res.success) {
         setCustomerData(res.customer);
+        if (res.customer?.name) {
+          setSignatureName(res.customer.name);
+        }
         if (res.customer.vehicles?.length > 0) {
           const veh = res.customer.vehicles[0];
           setSelectedVehicle(veh);
@@ -484,7 +487,8 @@ export const CustomerView = () => {
                   id="pay-cardholder-name"
                   type="text"
                   required
-                  defaultValue="Elena Rostova"
+                  defaultValue={customerData?.name || ''}
+                  placeholder="Cardholder Name"
                   style={{ width: '100%', padding: '0.65rem' }}
                 />
               </div>

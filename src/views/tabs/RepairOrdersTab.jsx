@@ -3,7 +3,7 @@ import { useShop } from '../../context/ShopContext.jsx';
 import { api } from '../../api/client.js';
 
 export const RepairOrdersTab = ({ onOpenCheckIn, onSelectRo }) => {
-  const { repairOrders, setSelectedRoId, showToast, refreshAll } = useShop();
+  const { repairOrders, setSelectedRoId, showToast, refreshAll, currentUser } = useShop();
   const [viewMode, setViewMode] = useState('kanban'); // 'kanban' | 'table'
   const [selectedRoForQc, setSelectedRoForQc] = useState(null);
   const [selectedRoForSafety, setSelectedRoForSafety] = useState(null);
@@ -42,7 +42,7 @@ export const RepairOrdersTab = ({ onOpenCheckIn, onSelectRo }) => {
       const res = await api.qcSignOff(selectedRoForQc.id, {
         passed: true,
         notes: qcNotes || 'Completed 12-point road test and torque spec verification',
-        inspectorName: 'Master Tech Marcus Vance'
+        inspectorName: currentUser?.name || selectedRoForQc?.assignedTechName || 'Shop Inspector'
       });
       if (res.success) {
         showToast(`QC Sign-Off passed for ${selectedRoForQc.roNumber}! Ready for pickup.`, 'success');

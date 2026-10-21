@@ -33,8 +33,11 @@ import {
   DollarSign,
   Star,
   ShieldCheck,
-  Crown
+  Crown,
+  UserCheck
 } from 'lucide-react';
+
+import { AdvisorView } from './AdvisorView.jsx';
 
 // Operational Tab Components
 import { CustomersTab } from './tabs/CustomersTab.jsx';
@@ -65,7 +68,11 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
   } = useShop();
 
   // Active navigation tab
-  const [activeTab, setActiveTab] = useState('Dashboard');
+  const [activeTab, setActiveTab] = useState(() => {
+    const hash = window.location.hash || '';
+    if (hash.includes('advisor')) return 'Advisor Board';
+    return 'Dashboard';
+  });
   
   // Search query in workflow
   const [searchQuery, setSearchQuery] = useState('');
@@ -79,26 +86,26 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
 
   // Dynamic customer and vehicle data resolution from live context
   const currentCustomer = currentRo?.customer || customers.find(c => c.id === currentRo?.customerId) || {
-    name: currentRo?.customerName || 'Elena Rostova',
-    phone: currentRo?.customerPhone || '555-0192',
-    email: currentRo?.customerEmail || 'elena.rostova@example.com',
-    memberSince: 'Jan 2023',
+    name: currentRo?.customerName || 'Customer Intake',
+    phone: currentRo?.customerPhone || '',
+    email: currentRo?.customerEmail || '',
+    memberSince: '2024',
     membership: {
-      tier: currentRo?.membershipTier || 'VIP Gold Care',
+      tier: currentRo?.membershipTier || 'Standard Member',
       status: 'active',
-      benefits: ['$0 Diagnostic Fee', 'Included Inspections', 'Preferred Scheduling', '15% Off Repairs', 'Roadside Assistance']
+      benefits: ['Digital Multi-Point Inspection', 'Direct Technician Messaging']
     }
   };
 
   const currentVehicle = currentRo?.vehicle || vehicles.find(v => v.id === currentRo?.vehicleId || v.vin === currentRo?.vin) || {
-    year: 2022,
-    make: 'Audi',
-    model: 'Q7 3.0T Quattro',
-    trim: 'Prestige AWD • 3.0L V6 Turbo',
-    vin: currentRo?.vin || 'WA1VAAF75ND019284',
+    year: currentRo?.vehicleYear || new Date().getFullYear(),
+    make: currentRo?.vehicleMake || 'Vehicle',
+    model: currentRo?.vehicleModel || 'In Shop',
+    trim: currentRo?.vehicleTrim || 'Standard Trim',
+    vin: currentRo?.vin || 'VIN-PENDING',
     image: '/dashboard/rav4_white.jpg',
-    mileage: currentRo?.mileageIn || 42150,
-    status: 'Active'
+    mileage: currentRo?.mileageIn || 0,
+    status: 'In Shop'
   };
 
   // Live Kanban mapping from real database repairOrders
@@ -128,8 +135,8 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
       status: col === 'check-in' ? 'Waiting' : col === 'in-progress' ? 'In Progress' : col === 'qc' ? 'QC' : 'Ready',
       statusType: col,
       tech: ro.assignedTechName || (ro.assignedTechId ? 'Assigned' : 'Unassigned'),
-      vin: ro.vin || roVehicle?.vin || 'WA1VAAF75ND019284',
-      mileage: ro.mileageIn ? ro.mileageIn.toLocaleString() : (roVehicle?.mileage ? roVehicle.mileage.toLocaleString() : '42,150')
+      vin: ro.vin || roVehicle?.vin || 'VIN-PENDING',
+      mileage: ro.mileageIn ? ro.mileageIn.toLocaleString() : (roVehicle?.mileage ? roVehicle.mileage.toLocaleString() : '0')
     };
   });
 
@@ -151,7 +158,8 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
   };
 
   const handleAddToRo = () => {
-    showToast('Added: Brake Fluid Service & Cabin Air Filter to Repair Order', 'success');
+    const serviceName = aiRecList[0] || 'Recommended Service';
+    showToast(`Added: ${serviceName} to ${currentRo?.roNumber || 'Repair Order'}`, 'success');
   };
 
   const sidebarNavItems = [
@@ -160,6 +168,7 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
     { label: 'Appointments', icon: Calendar },
     { label: 'Vehicles', icon: Car },
     { label: 'Service Writer', icon: FileSpreadsheet },
+    { label: 'Advisor Board', icon: UserCheck },
     { label: 'Repair Orders', icon: FileText },
     { label: 'Inspections', icon: ClipboardCheck },
     { label: 'Technicians', icon: Wrench },
@@ -302,10 +311,17 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
             <HelpCircle size={18} />
           </button>
 
-          <div className="ft-advisor-profile" onClick={() => showToast(`Logged in as ${currentUser?.name || 'Sarah Jenkins'} (${currentUser?.role || 'Service Advisor'})`, 'info')}>
-            <div className="ft-advisor-avatar">{currentUser?.name ? currentUser.name.split(' ').map(n => n[0]).join('') : 'SJ'}</div>
+          <div 
+            className="ft-advisor-profile" 
+            title="Open Advisor Board"
+            onClick={() => { 
+              setActiveTab('Advisor Board'); 
+              showToast(`Active Advisor: ${currentUser?.name || 'Service Advisor'}`, 'info'); 
+            }}
+          >
+            <div className="ft-advisor-avatar">{currentUser?.name ? currentUser.name.split(' ').map(n => n[0]).join('') : 'SA'}</div>
             <div className="ft-advisor-meta">
-              <span className="ft-advisor-name">{currentUser?.name || 'Sarah Jenkins'}</span>
+              <span className="ft-advisor-name">{currentUser?.name || 'Service Advisor'}</span>
               <span className="ft-advisor-role">{currentUser?.role === 'technician' ? 'Master Tech' : 'Service Advisor'}</span>
             </div>
           </div>
@@ -369,6 +385,12 @@ export const FutureTechOS = ({ onOpenCheckIn }) => {
         {activeTab === 'Service Writer' && (
           <main className="ft-main-workspace" style={{ padding: '24px' }}>
             <ServiceWriterTab />
+          </main>
+        )}
+
+        {activeTab === 'Advisor Board' && (
+          <main className="ft-main-workspace" style={{ padding: '24px' }}>
+            <AdvisorView onOpenCheckIn={onOpenCheckIn} />
           </main>
         )}
 

@@ -293,7 +293,7 @@ export const PaymentsTab = () => {
                 required
                 value={cardholderName}
                 onChange={(e) => setCardholderName(e.target.value)}
-                placeholder="Elena Rostova"
+                placeholder="Cardholder Full Name"
                 style={{
                   width: '100%',
                   background: '#070b14',

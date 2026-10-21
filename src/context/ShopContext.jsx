@@ -73,12 +73,13 @@ export const ShopProvider = ({ children, initialRole = 'advisor' }) => {
 
   const fetchGlobalData = useCallback(async () => {
     try {
-      const [custRes, vehRes, aptRes, invRes, locRes] = await Promise.all([
+      const [custRes, vehRes, aptRes, invRes, locRes, usersRes] = await Promise.all([
         api.searchCustomers('').catch(() => ({ customers: [] })),
         api.searchVehicles('').catch(() => ({ vehicles: [] })),
         api.getAppointments().catch(() => ({ appointments: [] })),
         api.getInventory().catch(() => ({ inventory: [] })),
-        api.getLocations().catch(() => ({ locations: [] }))
+        api.getLocations().catch(() => ({ locations: [] })),
+        api.getUsers().catch(() => ({ users: [] }))
       ]);
 
       if (custRes.customers) setCustomers(custRes.customers);
@@ -89,10 +90,14 @@ export const ShopProvider = ({ children, initialRole = 'advisor' }) => {
         setLocations(locRes.locations);
         if (locRes.locations.length > 0) setActiveLocation(locRes.locations[0]);
       }
+      if (usersRes.users && usersRes.users.length > 0) {
+        const matchingUser = usersRes.users.find(u => u.role === initialRole) || usersRes.users.find(u => u.role === 'advisor') || usersRes.users[0];
+        if (matchingUser) setCurrentUser(matchingUser);
+      }
     } catch (err) {
       console.warn('Failed loading auxiliary shop data:', err.message);
     }
-  }, []);
+  }, [initialRole]);
 
   useEffect(() => {
     fetchROs();

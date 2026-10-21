@@ -42,9 +42,9 @@ export const ServiceWriterTab = () => {
     const newLine = {
       id: `line_${Date.now()}`,
       type: type, // 'labor' | 'part'
-      description: type === 'labor' ? 'Automotive Diagnostic & Calibration Labor' : 'OEM Replacement Part',
+      description: '',
       quantity: 1,
-      unitPrice: type === 'labor' ? 175.00 : 85.00,
+      unitPrice: 0,
       approved: false
     };
     setLines([...lines, newLine]);
@@ -201,10 +201,10 @@ export const ServiceWriterTab = () => {
           <div>
             <span style={{ color: '#8fa0c0', fontSize: '11px', textTransform: 'uppercase' }}>Assigned Bay & Tech</span>
             <div style={{ color: '#00d2ff', fontWeight: '700', marginTop: '2px' }}>
-              {activeRo.bayNumber || 'Bay 3 (Diagnostics)'}
+              {activeRo.bayNumber || 'Unassigned Bay'}
             </div>
             <div style={{ color: '#8fa0c0', fontSize: '11px' }}>
-              Tech: {activeRo.assignedTechName || 'Marcus Vance'}
+              Tech: {activeRo.assignedTechName || activeRo.assignedTech?.name || 'Unassigned'}
             </div>
           </div>
           <div>

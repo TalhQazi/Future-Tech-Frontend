@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export const MessagesTab = () => {
-  const { customers, repairOrders, showToast } = useShop();
+  const { customers, repairOrders, showToast, currentUser } = useShop();
 
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -65,7 +65,9 @@ export const MessagesTab = () => {
         roId: activeRo?.id || null,
         direction: 'outbound',
         channel,
-        senderName: channel === 'sms' ? 'Service Advisor (Sarah J.)' : 'Shop Internal Note',
+        senderName: channel === 'sms' 
+          ? (currentUser?.name ? `Service Advisor (${currentUser.name})` : 'Service Advisor') 
+          : 'Shop Internal Note',
         message: messageText.trim()
       };
 

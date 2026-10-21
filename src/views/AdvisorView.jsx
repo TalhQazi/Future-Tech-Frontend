@@ -26,11 +26,8 @@ export const AdvisorView = ({ onOpenCheckIn }) => {
   const [isProcessingPay, setIsProcessingPay] = useState(false);
   const [payMethod, setPayMethod] = useState('card');
 
-  // Estimate lines builder
-  const [estimateLines, setEstimateLines] = useState([
-    { type: 'labor', description: 'Diagnostic Labor & Multi-Point Testing', laborHours: 1.5, laborRate: 175, lineTotal: 262.50 },
-    { type: 'part', description: 'OEM Spark Plug Set', partNumber: 'OEM-PLUG-6', quantity: 6, unitPrice: 19.50, lineTotal: 117.00 }
-  ]);
+  // Estimate lines builder - dynamically populated from live backend
+  const [estimateLines, setEstimateLines] = useState([]);
   const [newLineDesc, setNewLineDesc] = useState('');
   const [newLineType, setNewLineType] = useState('labor');
   const [newLineHours, setNewLineHours] = useState('1.0');
@@ -55,9 +52,25 @@ export const AdvisorView = ({ onOpenCheckIn }) => {
 
   const currentRO = selectedRO || repairOrders.find(r => r.id === selectedRoId) || repairOrders[0];
 
+  // Fetch real estimate lines from backend for current RO
+  React.useEffect(() => {
+    const roId = selectedRoId || currentRO?.id;
+    if (roId) {
+      api.getEstimate(roId).then(res => {
+        if (res.success && res.estimate && Array.isArray(res.estimate.lines)) {
+          setEstimateLines(res.estimate.lines);
+        } else {
+          setEstimateLines([]);
+        }
+      }).catch(() => {
+        setEstimateLines([]);
+      });
+    }
+  }, [selectedRoId, currentRO?.id, showEstimateModal]);
+
   const handleAddEstimateLine = (e) => {
     e.preventDefault();
-    if (!newLineDesc) return;
+    if (!newLineDesc.trim()) return;
     let total = 0;
     if (newLineType === 'labor') {
       total = parseFloat(newLineHours) * parseFloat(newLineRate);
@@ -70,7 +83,7 @@ export const AdvisorView = ({ onOpenCheckIn }) => {
       {
         id: `line_${Date.now()}`,
         type: newLineType,
-        description: newLineDesc,
+        description: newLineDesc.trim(),
         laborHours: parseFloat(newLineHours) || 0,
         laborRate: parseFloat(newLineRate) || 0,
         quantity: parseFloat(newLineQty) || 1,
@@ -84,13 +97,15 @@ export const AdvisorView = ({ onOpenCheckIn }) => {
   };
 
   const handleSendEstimate = async () => {
+    const roId = selectedRoId || currentRO?.id;
+    if (!roId) return;
     try {
-      const res = await api.saveEstimate(selectedRoId, estimateLines, 'sent');
+      const res = await api.saveEstimate(roId, estimateLines, 'sent');
       if (res.success) {
         showToast(`Estimate sent to customer (${currentRO?.customer?.phone || 'SMS'})`, 'success');
         setShowEstimateModal(false);
         fetchROs();
-        fetchSelectedRO(selectedRoId);
+        fetchSelectedRO(roId);
       }
     } catch (err) {
       showToast('Failed to send estimate', 'error');
@@ -98,17 +113,20 @@ export const AdvisorView = ({ onOpenCheckIn }) => {
   };
 
   const handleCheckoutPayment = async () => {
+    const roId = selectedRoId || currentRO?.id;
+    if (!roId) return;
     try {
       setIsProcessingPay(true);
-      const res = await api.processPayment(selectedRoId, {
+      const totalAmount = currentRO?.estimateTotal || currentRO?.estimate?.summary?.total || 0;
+      const res = await api.processPayment(roId, {
         paymentMethod: payMethod,
-        cardLast4: '4242'
+        amount: totalAmount
       });
       if (res.success) {
         showToast('Payment recorded and transaction confirmed. RO closed.', 'success');
         setShowCheckoutModal(false);
         fetchROs();
-        fetchSelectedRO(selectedRoId);
+        fetchSelectedRO(roId);
       }
     } catch (err) {
       showToast('Payment processing error', 'error');
@@ -310,7 +328,7 @@ export const AdvisorView = ({ onOpenCheckIn }) => {
                 {currentRO.customerComplaints?.join(', ') || 'General Inspection'}
               </div>
               <div style={{ fontSize: '0.78rem', color: 'var(--ft-text-3)', marginTop: '0.45rem' }}>
-                Odometer: <strong style={{ color: 'var(--ft-text-soft)' }}>{currentRO.odometerIn} mi</strong> • Assigned: {currentRO.assignedTech?.name || 'Marcus Vance'}
+                Odometer: <strong style={{ color: 'var(--ft-text-soft)' }}>{currentRO.odometerIn || 0} mi</strong> • Assigned: {currentRO.assignedTech?.name || currentRO.assignedTechName || 'Unassigned'}
               </div>
             </div>
 
@@ -359,16 +377,21 @@ export const AdvisorView = ({ onOpenCheckIn }) => {
             {/* Existing lines */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginBottom: '1.25rem' }}>
               {estimateLines.map((line, idx) => (
-                <div key={idx} style={{ background: 'var(--ft-inset)', border: '1px solid var(--ft-line)', padding: '0.85rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div key={line.id || idx} style={{ background: 'var(--ft-inset)', border: '1px solid var(--ft-line)', padding: '0.85rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <span className="badge badge-brand" style={{ marginRight: '0.5rem' }}>{line.type}</span>
                     <span style={{ color: 'var(--ft-text)', fontSize: '0.9rem', fontWeight: 600 }}>{line.description}</span>
                   </div>
                   <strong style={{ color: 'var(--ft-cyan)', fontSize: '1rem' }}>
-                    ${line.lineTotal.toFixed(2)}
+                    ${(line.lineTotal || (line.quantity * line.unitPrice) || 0).toFixed(2)}
                   </strong>
                 </div>
               ))}
+              {estimateLines.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '1.25rem', color: 'var(--ft-text-3)', fontSize: '0.85rem' }}>
+                  No estimate lines recorded yet. Use the form below to add itemized parts or labor operations.
+                </div>
+              )}
             </div>
 
             {/* Add line input */}
@@ -415,7 +438,7 @@ export const AdvisorView = ({ onOpenCheckIn }) => {
               Record Payment — {currentRO?.roNumber}
             </h4>
             <div style={{ fontSize: '0.85rem', color: 'var(--ft-text-2)', marginBottom: '1.25rem' }}>
-              Total Due: <strong style={{ color: 'var(--ft-success)', fontSize: '1.15rem' }}>${currentRO?.estimateTotal || '345.50'}</strong>
+              Total Due: <strong style={{ color: 'var(--ft-success)', fontSize: '1.15rem' }}>${(currentRO?.estimateTotal || currentRO?.estimate?.summary?.total || 0).toFixed(2)}</strong>
             </div>
 
             <div style={{ background: 'var(--ft-inset)', border: '1px solid var(--ft-line-2)', padding: '1rem', borderRadius: '10px', marginBottom: '1.25rem' }}>
@@ -441,7 +464,7 @@ export const AdvisorView = ({ onOpenCheckIn }) => {
 
               {payMethod === 'card' && (
                 <div style={{ background: 'var(--ft-surface)', border: '1px solid rgba(199, 184, 255, 0.34)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.85rem', color: 'var(--ft-text)', fontFamily: 'var(--ft-font-mono)' }}>
-                  💳 Card Terminal: STRIPE_POS_01 • Pre-authorized •••• 4242
+                  💳 Card Terminal: STRIPE_POS_01 • Pre-authorized Card on File ({currentRO?.customer?.name || 'Customer'})
                 </div>
               )}
             </div>
