@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { loadChironModel } from './chironModel.js';
 import './car-animations.css';
 
 /**
@@ -22,10 +21,6 @@ import './car-animations.css';
  * - Falls back to the procedural Chiron if the model can't be loaded
  */
 
-const ASSET_BASE = import.meta.env.BASE_URL;
-const CHIRON_MODEL_URL = `${ASSET_BASE}models/chiron.glb`;
-const DRACO_DECODER_PATH = `${ASSET_BASE}draco/`; // three's glTF Draco decoder, served from public/
-
 // Neon palette cycled by the floor rings and orbiting rim lights
 const NEON_PALETTE = ['#00e5ff', '#ff2bd6', '#7c4dff', '#ff9100'].map(c => new THREE.Color(c));
 
@@ -36,18 +31,6 @@ const CAMERA_TARGET = new THREE.Vector3(0, 0.5, 0);
 const BASE_ELEVATION = 0.17;
 const BASE_DISTANCE = 6.6;
 const CAR_FRAMING_HALF_WIDTH = 2.5; // half car length plus margin, used to fit narrow viewports
-
-// Decoded once and shared by every mount (geometry is reused, materials are cloned per mount)
-let chironModelPromise = null;
-function loadChironModel() {
-  if (!chironModelPromise) {
-    const dracoLoader = new DRACOLoader().setDecoderPath(DRACO_DECODER_PATH);
-    const loader = new GLTFLoader().setDRACOLoader(dracoLoader);
-    chironModelPromise = loader.loadAsync(CHIRON_MODEL_URL).finally(() => dracoLoader.dispose());
-    chironModelPromise.catch(() => { chironModelPromise = null; });
-  }
-  return chironModelPromise;
-}
 
 export const Car3DCanvas = ({
   carType = 'chiron',

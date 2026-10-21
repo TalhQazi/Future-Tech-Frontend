@@ -3,6 +3,7 @@ import { ArrowDown, ArrowUpRight, Cpu, Check, X as XIcon } from 'lucide-react';
 import { ROLES, PROTOCOLS } from './content.js';
 import { appHref } from '../router.js';
 import { usePointerParallax } from './motion.js';
+import { ChironProfile } from './ChironProfile.jsx';
 
 // [x%, y%, size px, duration s, delay s] — fixed so the layout is deterministic
 const PARTICLES = [
@@ -107,90 +108,8 @@ const HeroVisual = () => {
                   </span>
                 </div>
 
-                {/* Animated Bugatti Chiron Profile with Signature C-Line & French Blue Paint */}
-                <div style={{ position: 'relative', width: '100%', height: '54px' }}>
-                  <svg viewBox="0 0 340 70" preserveAspectRatio="xMidYMid meet" style={{ width: '100%', height: '100%' }}>
-                    <defs>
-                      {/* Bugatti Dual-Tone Gradient */}
-                      <linearGradient id="chironBodyGrad" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#08142b" />
-                        <stop offset="45%" stopColor="#0a1f47" />
-                        <stop offset="48%" stopColor="#0077ff" />
-                        <stop offset="100%" stopColor="#00b4ff" />
-                      </linearGradient>
-
-                      <linearGradient id="cLineGrad" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stopColor="#ffffff" />
-                        <stop offset="100%" stopColor="#cbd5e1" />
-                      </linearGradient>
-                    </defs>
-
-                    {/* Bugatti Chiron Sculpted Silhouette */}
-                    <path 
-                      d="M 28 52 
-                         C 34 43, 44 38, 65 35 
-                         C 92 32, 112 21, 142 17 
-                         C 188 13, 238 17, 262 25 
-                         C 288 33, 308 40, 318 48 
-                         L 312 52 
-                         C 300 52, 290 44, 266 44 
-                         C 242 44, 232 52, 220 52 
-                         L 125 52 
-                         C 113 52, 103 44, 80 44 
-                         C 57 44, 47 52, 35 52 Z" 
-                      fill="url(#chironBodyGrad)" 
-                      stroke="#00a8ff" 
-                      strokeWidth="1.8" 
-                    />
-
-                    {/* Iconic Sweeping Bugatti "C-Line" along side profile */}
-                    <path 
-                      d="M 242 27 C 185 22, 148 34, 148 44 C 148 51, 165 52, 218 52" 
-                      fill="none" 
-                      stroke="url(#cLineGrad)" 
-                      strokeWidth="2.5" 
-                      strokeLinecap="round" 
-                    />
-
-                    {/* Windshield & Cabin */}
-                    <path d="M 125 23 C 145 19, 185 17, 220 21 C 235 23, 248 29, 255 34 L 125 34 Z" fill="rgba(0, 229, 255, 0.25)" stroke="#00d2ff" strokeWidth="1" />
-
-                    {/* Bugatti Horseshoe Grille Nose Tip */}
-                    <path d="M 314 46 Q 318 48 314 50" fill="none" stroke="#ffffff" strokeWidth="2.5" />
-
-                    {/* Active Rear GT Spoiler */}
-                    <line x1="38" y1="36" x2="35" y2="28" stroke="#00a8ff" strokeWidth="2" />
-                    <line x1="52" y1="35" x2="49" y2="28" stroke="#00a8ff" strokeWidth="2" />
-                    <path d="M 30 28 L 56 28" stroke="#00a8ff" strokeWidth="3" strokeLinecap="round" />
-
-                    {/* Fault Indicator Pulsing Node at W16 Cylinder 2 */}
-                    <circle cx="152" cy="38" r="6" fill="rgba(255, 23, 68, 0.35)" stroke="#ff1744" strokeWidth="1.6">
-                      <animate attributeName="r" values="3;7.5;3" dur="1.2s" repeatCount="indefinite" />
-                      <animate attributeName="opacity" values="1;0.4;1" dur="1.2s" repeatCount="indefinite" />
-                    </circle>
-                    <circle cx="152" cy="38" r="2.5" fill="#ff1744" />
-
-                    {/* Front Wheel with Blue Bugatti Rim */}
-                    <g transform="translate(266, 48)">
-                      <circle cx="0" cy="0" r="14" fill="#0d1424" stroke="#00a8ff" strokeWidth="2" />
-                      <circle cx="0" cy="0" r="10" fill="#1b2844" stroke="#38bdf8" strokeWidth="1.2" strokeDasharray="3 2" />
-                      <circle cx="0" cy="0" r="3" fill="#ffffff" />
-                    </g>
-
-                    {/* Rear Wheel with Deep Atlantic Blue Rim */}
-                    <g transform="translate(80, 48)">
-                      <circle cx="0" cy="0" r="14" fill="#0d1424" stroke="#0088ff" strokeWidth="2" />
-                      <circle cx="0" cy="0" r="10" fill="#1b2844" stroke="#00a8ff" strokeWidth="1.2" strokeDasharray="3 2" />
-                      <circle cx="0" cy="0" r="3" fill="#ffffff" />
-                    </g>
-
-                    {/* Sweeping Blue Scanning Laser */}
-                    <line x1="0" y1="10" x2="0" y2="58" stroke="#00f0ff" strokeWidth="2" opacity="0.85">
-                      <animate attributeName="x1" values="20;320;20" dur="3.5s" repeatCount="indefinite" />
-                      <animate attributeName="x2" values="20;320;20" dur="3.5s" repeatCount="indefinite" />
-                    </line>
-                  </svg>
-                </div>
+                {/* Bugatti Chiron Side Profile (static render of the 3D model) */}
+                <ChironProfile height="54px" />
               </div>
 
               <div className="hv-dtc">
