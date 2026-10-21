@@ -1,8 +1,7 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { ArrowUpRight, Check, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 import { ROLES } from './content.js';
 import { appHref } from '../router.js';
-import { api } from '../api/client.js';
 
 /* ---- Role previews (live data from backend) ------------------------------ */
 
@@ -158,23 +157,11 @@ const PREVIEWS = {
 
 export const Workspaces = () => {
   const [selected, setSelected] = useState(ROLES[0].id);
-  const [liveOrders, setLiveOrders] = useState([]);
-  const [liveInspection, setLiveInspection] = useState(null);
-  const [liveEstimate, setLiveEstimate] = useState(null);
+  // The public site never loads shop data; previews render their empty states.
+  const liveOrders = [];
+  const liveInspection = null;
+  const liveEstimate = null;
   const tabRefs = useRef({});
-
-  useEffect(() => {
-    api.getRepairOrders()
-      .then(res => {
-        if (res.success && res.repairOrders && res.repairOrders.length > 0) {
-          setLiveOrders(res.repairOrders);
-          const firstRo = res.repairOrders[0];
-          api.getInspection(firstRo.id).then(r => r.success && setLiveInspection(r.inspection)).catch(() => {});
-          api.getEstimate(firstRo.id).then(r => r.success && setLiveEstimate(r.estimate)).catch(() => {});
-        }
-      })
-      .catch(() => {});
-  }, []);
 
   const onKeyDown = (e, index) => {
     const keys = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };
