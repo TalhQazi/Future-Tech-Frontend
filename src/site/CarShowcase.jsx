@@ -136,16 +136,9 @@ export const CarShowcase = () => {
       <div className="container" style={{ position: 'relative', zIndex: 10 }}>
         {/* Section Header */}
         <div style={{ textAlign: 'center', maxWidth: '860px', margin: '0 auto 2.2rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '6px 16px', borderRadius: '20px', background: 'rgba(0, 168, 255, 0.1)', border: '1px solid rgba(0, 168, 255, 0.3)', marginBottom: '1rem' }}>
-            <Activity size={15} style={{ color: '#00a8ff' }} />
-            <span style={{ fontSize: '0.8rem', fontWeight: '700', letterSpacing: '0.08em', color: '#00a8ff', textTransform: 'uppercase' }}>
-              Bugatti Chiron W16 Telematics Engine
-            </span>
-          </div>
           <h2 id="car-showcase-heading" style={{ fontSize: 'clamp(2.1rem, 4.2vw, 3.3rem)', fontWeight: '800', letterSpacing: '-0.03em', color: '#ffffff', lineHeight: 1.15, margin: '0 0 1rem' }}>
-            Bugatti Chiron Interactive 3D Visualizer. <br />
             <span style={{ background: 'linear-gradient(90deg, #0088ff 0%, #00e5ff 40%, #ff1744 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Real-Time CAN-FD Bus & 1,500 HP W16 Subsystems.
+              Real-Time CAN-FD Bus & 1,500 HP W16 Subsystems
             </span>
           </h2>
           <p style={{ fontSize: '1.05rem', color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
