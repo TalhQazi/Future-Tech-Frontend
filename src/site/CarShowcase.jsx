@@ -65,8 +65,16 @@ const BUGATTI_LIVERIES = [
     id: 'royal-violet', 
     name: 'Royal Ultra Violet & Obsidian', 
     primary: '#9333ea', 
-    secondary: '#090d16', 
-    badge: '🟣 Bespoke' 
+    secondary: '#090d16',
+    badge: '🟣 Bespoke'
+  },
+  {
+    id: 'spectrum',
+    name: 'Spectrum Chroma Shift & Carbon',
+    primary: '#ff2bd6',
+    secondary: '#0a0d14',
+    badge: '🌈 Spectrum',
+    spectrum: true
   }
 ];
 
@@ -195,7 +203,9 @@ export const CarShowcase = () => {
                   width: '18px',
                   height: '18px',
                   borderRadius: '50%',
-                  background: `linear-gradient(135deg, ${liv.primary} 50%, ${liv.secondary} 50%)`,
+                  background: liv.spectrum
+                    ? 'conic-gradient(#ff1744, #ffc800, #00e676, #00d2ff, #9333ea, #ff1744)'
+                    : `linear-gradient(135deg, ${liv.primary} 50%, ${liv.secondary} 50%)`,
                   border: '1.5px solid rgba(255, 255, 255, 0.4)',
                   boxShadow: activeLiveryIndex === idx ? `0 0 10px ${liv.primary}` : 'none'
                 }} />
@@ -329,6 +339,7 @@ export const CarShowcase = () => {
                   carType="chiron"
                   primaryColor={livery.primary}
                   secondaryColor={livery.secondary}
+                  spectrum={!!livery.spectrum}
                   mode={activeMode}
                   isThrottling={isThrottling}
                   speed={speed}

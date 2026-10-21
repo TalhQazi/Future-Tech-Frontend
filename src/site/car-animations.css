@@ -457,6 +457,50 @@
   border-left: 3px solid #00ffaa;
 }
 
+/* 3D Chiron model loader & credit */
+.car3d-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+.car3d-loader-ring {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.08);
+  border-top-color: #00e5ff;
+  border-right-color: #ff2bd6;
+  animation: car3d-spin 0.9s linear infinite;
+}
+
+@keyframes car3d-spin {
+  to { transform: rotate(360deg); }
+}
+
+.car3d-credit {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  font-size: 0.68rem;
+  color: rgba(148, 163, 184, 0.7);
+  text-decoration: none;
+  z-index: 10;
+}
+
+.car3d-credit:hover {
+  color: #00d2ff;
+}
+
 /* Responsive adjustments */
 @media (max-width: 900px) {
   .car-controls-bar {
