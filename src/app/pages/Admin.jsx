@@ -6,7 +6,7 @@ import { useWorkspace } from '../Shell.jsx';
 import { Card, PageHeader, Button, Field, Input, Select, Textarea, Table, StatusPill, Badge, Modal, Alert, Async, Tabs, useAsync, useAction, useConfirm, money, dt, label } from '../ui.jsx';
 import { MoneyInput } from '../shared.jsx';
 
-const STAFF_ROLES = ['advisor', 'technician', 'parts', 'accounting', 'manager', 'admin'];
+const STAFF_ROLES = ['advisor', 'technician', 'parts', 'accounting', 'manager', 'executive', 'admin'];
 
 const Users = () => {
   const { user, can } = useAuth();
@@ -16,7 +16,7 @@ const Users = () => {
   const [form, setForm] = useState(null);
   const [invite, setInvite] = useState(null);
   const s = useAsync(() => api.get('/users').then(r => r.users), []);
-  const roles = user.role === 'admin' ? STAFF_ROLES : STAFF_ROLES.filter(r => !['manager', 'admin'].includes(r));
+  const roles = user.role === 'admin' ? STAFF_ROLES : STAFF_ROLES.filter(r => !['manager', 'executive', 'admin'].includes(r));
   const save = () => run(async () => {
     const body = { name: form.name, role: form.role, phone: form.phone || undefined, specialty: form.specialty || undefined, locationIds: form.locationIds, laborCostRateCents: form.laborCostRateCents ?? null };
     if (form.id) await api.patch(`/users/${form.id}`, { ...body, reason: 'Updated by administrator' });

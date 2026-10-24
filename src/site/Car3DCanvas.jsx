@@ -109,6 +109,8 @@ export const Car3DCanvas = ({
 
     // 3. RENDERER - NEUTRAL TONE MAPPING KEEPS LIVERY COLORS SATURATED
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    // Shader diagnostics only in development (silences driver precision warnings in production)
+    renderer.debug.checkShaderErrors = import.meta.env.DEV;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(width, height);
     renderer.toneMapping = THREE.NeutralToneMapping;

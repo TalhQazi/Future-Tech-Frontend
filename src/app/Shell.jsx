@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import {
   LayoutDashboard, ClipboardList, Calendar, Users, Car, Wrench, Truck, Package, Receipt, Heart, MessageSquare,
-  Cpu, BookOpen, CheckCircle2, BarChart3, Settings, Bell, LogOut, Menu, UserCircle, Activity, Gauge, MessagesSquare
+  Cpu, BookOpen, CheckCircle2, BarChart3, Settings, Bell, LogOut, Menu, UserCircle, Activity, Gauge, MessagesSquare, TrendingUp
 } from 'lucide-react';
 import { api } from '../api/client.js';
 import { navigate } from '../router.js';
@@ -26,6 +26,7 @@ const NAV = [
   { key: 'accounting', label: 'Invoices & payments', icon: Receipt, perm: 'invoices:read' },
   { key: 'memberships', label: 'Memberships', icon: Heart, perm: 'memberships:read' },
   { key: 'analytics', label: 'Analytics', icon: BarChart3, perm: 'analytics:location' },
+  { key: 'intelligence', label: 'Member intelligence', icon: TrendingUp, perm: 'economics:location' },
   { group: 'FutureTech' },
   { key: 'techdata', label: 'Technical data', icon: BookOpen, perm: 'techdata:read' },
   { key: 'fixes', label: 'Confirmed fixes', icon: CheckCircle2, perm: 'fixes:read' },

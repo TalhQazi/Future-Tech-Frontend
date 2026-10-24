@@ -13,6 +13,7 @@ import { Accounting } from './pages/Accounting.jsx';
 import { Memberships, Messages, Analytics, Account } from './pages/Business.jsx';
 import { TechData, Fixes, PartsIntel, Devices, Predictive, Forum } from './pages/FutureTech.jsx';
 import { Admin } from './pages/Admin.jsx';
+import { Intelligence } from './pages/Intelligence.jsx';
 
 const PAGES = {
   '': [Dashboard],
@@ -29,6 +30,7 @@ const PAGES = {
   accounting: [Accounting, 'invoices:read'],
   memberships: [Memberships, 'memberships:read'],
   analytics: [Analytics, 'analytics:location'],
+  intelligence: [Intelligence, 'economics:location'],
   techdata: [TechData, 'techdata:read'],
   fixes: [Fixes, 'fixes:read'],
   'parts-intel': [PartsIntel, 'parts_intel:read'],
@@ -45,7 +47,7 @@ export const StaffApp = ({ route }) => {
   const [Page, perm] = PAGES[section] || [];
   return (
     <Shell section={section}>
-      {!Page ? <Empty title="Page not found" /> : perm && !can(perm) ? <Empty title="You do not have access to this area" /> : <Page key={`${section}/${id || ''}`} id={id} query={route.query} />}
+      {!Page ? <Empty title="Page not found" /> : perm && !can(perm) ? <Empty title="You do not have access to this area" /> : <Page key={`${section}/${id || ''}`} id={id} sub={route.path[2]} query={route.query} />}
     </Shell>
   );
 };

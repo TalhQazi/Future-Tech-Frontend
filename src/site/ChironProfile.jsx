@@ -17,6 +17,7 @@ export const ChironProfile = ({ height = '54px' }) => {
     let disposed = false;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.debug.checkShaderErrors = import.meta.env.DEV;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.NeutralToneMapping;
     renderer.toneMappingExposure = 1.1;

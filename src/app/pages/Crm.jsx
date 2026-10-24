@@ -6,6 +6,7 @@ import { useAuth } from '../auth.jsx';
 import { Card, PageHeader, Button, Input, Table, StatusPill, Badge, Modal, Alert, Async, Empty, Tabs, useAsync, useAction, useConfirm, money, dt, d, label, vehicleName } from '../ui.jsx';
 import { NewCustomerForm, NewVehicleForm } from './CheckIn.jsx';
 import { SearchPicker } from '../shared.jsx';
+import { MemberValueCard } from './Intelligence.jsx';
 
 const CONSENTS = ['sms_transactional', 'sms_marketing', 'email_transactional', 'email_marketing', 'telematics_collection', 'data_processing'];
 
@@ -105,6 +106,7 @@ export const VehicleDetail = ({ id }) => {
             ]} />
           </Card>
         )}
+        {(can('economics:customer_value') || can('risk:alerts')) && <MemberValueCard id={id} />}
         <Tabs tabs={['history', 'recommendations', 'mileage', 'ownership', 'fuel']} active={tab} onChange={setTab} />
         {tab === 'history' && <Async state={history}>{h => (
           <div className="stack">

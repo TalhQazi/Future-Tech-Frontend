@@ -175,9 +175,17 @@ const Messages = () => {
 
 const Membership = ({ summary }) => {
   const plans = useAsync(() => api.get('/membership-plans').then(r => r.plans), []);
+  const value = useAsync(() => api.get('/portal/value').catch(() => null), []);
+  const v = value.data;
   return (
     <>
       <PageHeader title="Membership" />
+      {v && v.totalCoveredRetailValueCents > 0 && <Card title={"Your membership savings"}>
+        <div className="value" style={{ fontSize: 28, fontWeight: 700 }}>{money(v.totalSavingsCents)}</div>
+        <div className="small muted">{v.savingsDefinition} Retail value of covered services: {money(v.totalCoveredRetailValueCents)}.</div>
+        {v.vehicles.filter(x => x.savingsCents > 0).map(x => <div key={x.id} className="row between small"><span>{x.name}</span><strong>{money(x.savingsCents)}</strong></div>)}
+      </Card>}
+      {v && v.vehicles.some(x => x.maintenanceAlerts.length) && <Card title="Upcoming maintenance">{v.vehicles.flatMap(x => x.maintenanceAlerts.map((a, i) => <div key={x.id + i} className="small" style={{ marginBottom: 6 }}><strong>{x.name}: {a.title}</strong>{a.recommendation ? ` — ${a.recommendation}` : ''}{a.dueAt ? ` (due ${d(a.dueAt)})` : ''}</div>))}</Card>}
       {summary.memberships.length ? summary.memberships.map(m => (
         <Card key={m.id} title={m.plan ? `${m.plan.name}` : m.number} actions={<StatusPill status={m.status} />}>
           <div className="small">Member number <span className="mono">{m.number}</span> · {d(m.currentPeriodStart)} – {d(m.currentPeriodEnd)}</div>
