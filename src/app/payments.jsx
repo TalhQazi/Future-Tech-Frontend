@@ -35,7 +35,7 @@ export const OnlinePayment = ({ invoice, onPaid }) => {
       const res = await api.post(`/invoices/${invoice.id}/online-payment`, {}, { idempotencyKey: newIdempotencyKey() });
       const Stripe = await loadStripe();
       stripeRef.current = { stripe: Stripe(res.publishableKey) };
-      const elements = stripeRef.current.stripe.elements({ clientSecret: res.clientSecret, appearance: { theme: 'night' } });
+      const elements = stripeRef.current.stripe.elements({ clientSecret: res.clientSecret, appearance: { theme: 'stripe' } });
       stripeRef.current.elements = elements;
       setIntent(res);
       setTimeout(() => elements.create('payment').mount(mountRef.current), 0);
@@ -73,7 +73,7 @@ export const OnlinePayment = ({ invoice, onPaid }) => {
       {error && <Alert tone="danger">{error.message}</Alert>}
       {!intent ? <Button variant="primary" loading={busy} onClick={start}>Pay {money(invoice.balanceCents, invoice.currency)} by card</Button> : (
         <>
-          <div ref={mountRef} style={{ background: '#0a1120', padding: 12, borderRadius: 8 }} />
+          <div ref={mountRef} style={{ background: '#fff', border: '1px solid var(--line-2)', padding: 12, borderRadius: 8 }} />
           <Button variant="primary" loading={busy} onClick={pay}>Pay {money(invoice.balanceCents, invoice.currency)}</Button>
         </>
       )}

@@ -257,15 +257,24 @@ export const Portal = ({ route }) => {
   const [section, id] = route.path;
   return (
     <div className="ft">
+      <header className="ft-topbar">
+        <a className="ft-logo" href="#/portal">
+          <img src="/brand/futuretech-logo-sm.webp" alt="" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+          <div><strong>FUTURETECH<span>OS</span></strong><small>MY GARAGE · MEMBERSHIP AUTO</small></div>
+        </a>
+        <nav className="ft-topnav" aria-label="Main">{NAV.map(([key, text, Icon]) => <a key={key} href={`#/portal/${key}`} className={(section || '') === key ? 'active' : ''}><Icon size={20} />{text}</a>)}</nav>
+        <div className="ft-topbar-tools">
+          <a className="ft-user" href="#/portal/account"><span className="ft-avatar">{user.name.split(/\s+/).slice(0, 2).map(w => w[0]?.toUpperCase()).join('')}</span><span>{user.name.split(' ')[0]}</span></a>
+          <Button variant="ghost" onClick={logout} aria-label="Sign out"><LogOut size={16} /></Button>
+        </div>
+      </header>
       <div className="ft-shell">
         <aside className="ft-side">
-          <div className="ft-brand"><span>FutureTech · My Garage</span></div>
           <nav className="ft-nav">{NAV.map(([key, text, Icon]) => <a key={key} href={`#/portal/${key}`} className={(section || '') === key ? 'active' : ''}><Icon size={16} />{text}</a>)}</nav>
           <div className="grow" />
           <div className="small faint" style={{ padding: '0 10px' }}>{user.name}</div>
         </aside>
         <div className="ft-main">
-          <header className="ft-top"><div className="grow" /><a href="#/portal/account" className="small">Account</a><Button variant="ghost" onClick={logout} aria-label="Sign out"><LogOut size={16} /></Button></header>
           <main className="ft-content">
             <Async state={summary}>{s => (
               <>

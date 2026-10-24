@@ -60,7 +60,7 @@ const MfaEnroll = ({ enrollmentToken, onDone }) => {
     return (
       <div className="stack">
         <Alert tone="ok">Authenticator enabled. Save these one-time recovery codes now; they will not be shown again.</Alert>
-        <div className="grid-2 mono" style={{ background: '#0a1120', padding: 12, borderRadius: 8 }}>{codes.list.map(c => <span key={c}>{c}</span>)}</div>
+        <div className="grid-2 mono" style={{ background: 'var(--surface-3)', padding: 12, borderRadius: 8 }}>{codes.list.map(c => <span key={c}>{c}</span>)}</div>
         <Button variant="primary" block onClick={() => onDone(codes.res)}>I saved my recovery codes</Button>
       </div>
     );
@@ -70,7 +70,7 @@ const MfaEnroll = ({ enrollmentToken, onDone }) => {
     <div className="stack">
       <Alert tone="info"><strong>Set up multi-factor authentication.</strong> Scan the code with an authenticator app (Microsoft Authenticator, Google Authenticator, 1Password).</Alert>
       {qr && <img src={qr} alt="Authenticator QR code" style={{ width: 200, height: 200, margin: '0 auto', borderRadius: 8, background: '#fff', padding: 6 }} />}
-      <div className="small muted">Or enter this key manually: <span className="mono" style={{ wordBreak: 'break-all', color: '#fff' }}>{setup.secret}</span></div>
+      <div className="small muted">Or enter this key manually: <span className="mono" style={{ wordBreak: 'break-all', color: 'var(--text)' }}>{setup.secret}</span></div>
       <Field label="6-digit code"><Input inputMode="numeric" autoComplete="one-time-code" value={code} onChange={e => setCode(e.target.value)} maxLength={6} /></Field>
       <Button variant="primary" block loading={busy} disabled={code.length !== 6} onClick={confirm}>Verify and enable</Button>
     </div>
