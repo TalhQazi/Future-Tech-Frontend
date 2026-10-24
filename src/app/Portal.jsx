@@ -27,6 +27,7 @@ const Garage = ({ summary, reload }) => {
               <div className="small muted mono">{v.vin || 'VIN not recorded'}</div>
               <div className="small">{v.mileage?.toLocaleString()} {v.mileageUnit}</div>
               {open && <div className="row" style={{ marginTop: 8 }}><StatusPill status={open.status} /><a href={`#/portal/ro/${open.id}`}>View {open.roNumber}</a></div>}
+              <a className="small" href={`#/portal/health/${v.id}`}>Vehicle health & history</a>
               {recs.map(r => <div key={r.id} className="small" style={{ marginTop: 6 }}><Badge tone="info">Recommended</Badge> {r.title}<div className="faint">{r.reason}</div></div>)}
             </Card>
           );
@@ -175,16 +176,21 @@ const Messages = () => {
 
 const Membership = ({ summary }) => {
   const plans = useAsync(() => api.get('/membership-plans').then(r => r.plans), []);
-  const value = useAsync(() => api.get('/portal/value').catch(() => null), []);
+  const value = useAsync(() => api.get('/customer/membership-value').catch(() => null), []);
   const v = value.data;
   return (
     <>
       <PageHeader title="Membership" />
-      {v && v.totalCoveredRetailValueCents > 0 && <Card title={"Your membership savings"}>
-        <div className="value" style={{ fontSize: 28, fontWeight: 700 }}>{money(v.totalSavingsCents)}</div>
-        <div className="small muted">{v.savingsDefinition} Retail value of covered services: {money(v.totalCoveredRetailValueCents)}.</div>
-        {v.vehicles.filter(x => x.savingsCents > 0).map(x => <div key={x.id} className="row between small"><span>{x.name}</span><strong>{money(x.savingsCents)}</strong></div>)}
-      </Card>}
+      {v && (v.totalCoveredRetailValueCents > 0 || v.membershipPaymentsCents > 0) && <div className="grid-3">
+        <Card title="Your membership savings">
+          <div style={{ fontSize: 28, fontWeight: 700 }}>{money(v.totalSavingsCents)}</div>
+          <div className="small muted">{v.savingsDefinition}</div>
+          {v.vehicles.filter(x => x.savingsCents > 0).map(x => <div key={x.id} className="row between small"><span>{x.name}</span><strong>{money(x.savingsCents)}</strong></div>)}
+        </Card>
+        <Card title="Retail value of covered services"><div style={{ fontSize: 28, fontWeight: 700 }}>{money(v.totalCoveredRetailValueCents)}</div></Card>
+        <Card title="Membership payments"><div style={{ fontSize: 28, fontWeight: 700 }}>{money(v.membershipPaymentsCents)}</div><div className="small muted">Your membership fees, shown separately from savings.</div></Card>
+      </div>}
+      {v?.referrals?.length > 0 && <Card title="Referral rewards">{v.referrals.map((r, i) => <div key={i} className="row between small"><span>{r.referredName} · {label(r.status)}</span><strong>{r.rewardCents ? money(r.rewardCents) : '—'}</strong></div>)}</Card>}
       {v && v.vehicles.some(x => x.maintenanceAlerts.length) && <Card title="Upcoming maintenance">{v.vehicles.flatMap(x => x.maintenanceAlerts.map((a, i) => <div key={x.id + i} className="small" style={{ marginBottom: 6 }}><strong>{x.name}: {a.title}</strong>{a.recommendation ? ` — ${a.recommendation}` : ''}{a.dueAt ? ` (due ${d(a.dueAt)})` : ''}</div>))}</Card>}
       {summary.memberships.length ? summary.memberships.map(m => (
         <Card key={m.id} title={m.plan ? `${m.plan.name}` : m.number} actions={<StatusPill status={m.status} />}>
@@ -194,6 +200,33 @@ const Membership = ({ summary }) => {
       )) : <Alert tone="info">You are not a member yet. Ask your service advisor about these plans:</Alert>}
       <Async state={plans}>{ps => <div className="grid-3">{ps.map(p => <Card key={p.id} title={p.name}><strong>{money(p.priceAnnualCents, p.currency)} / year</strong><ul className="small" style={{ paddingLeft: 16 }}>{p.benefitsText.map((b, i) => <li key={i}>{b}</li>)}</ul></Card>)}</div>}</Async>
     </>
+  );
+};
+
+// Customer-safe vehicle health and history (server-side allowlisted projection).
+const URGENCY_TONE = { high: 'danger', medium: 'warn', low: 'info', info: '' };
+const VehicleHealth = ({ id }) => {
+  const s = useAsync(() => api.get(`/customer/vehicle-health/${id}`), [id]);
+  return (
+    <Async state={s}>{({ vehicle: v, serviceHistory, upcomingAppointments }) => (
+      <>
+        <a href="#/portal" className="small">← My garage</a>
+        <PageHeader title={v.name} subtitle={`${v.mileage?.toLocaleString()} ${v.mileageUnit}${v.licensePlate ? ` · ${v.licensePlate}` : ''}`} />
+        <div className="grid-2">
+          <Card title="Inspection results">
+            {v.health.inspectedAt ? <div className="small faint" style={{ marginBottom: 8 }}>Last inspection {d(v.health.inspectedAt)}</div> : <p className="small muted">No inspection results yet.</p>}
+            {v.health.items.map((h, i) => <div key={i} style={{ marginBottom: 10 }}><div className="row"><Badge tone={URGENCY_TONE[h.urgency]}>{h.label}</Badge><strong>{h.item}</strong></div><div className="small">{h.explanation}</div>{h.recommendation && <div className="small muted">{h.recommendation}</div>}</div>)}
+          </Card>
+          <Card title="Recommended maintenance">
+            {v.maintenanceAlerts.length ? v.maintenanceAlerts.map((a, i) => <div key={i} className="small" style={{ marginBottom: 6 }}><strong>{a.title}</strong>{a.recommendation ? ` — ${a.recommendation}` : ''}{a.dueAt ? ` (due ${d(a.dueAt)})` : a.dueMileage ? ` (due at ${a.dueMileage.toLocaleString()})` : ''}</div>) : <p className="small muted">Nothing due right now.</p>}
+            {v.diagnosticCodes.length > 0 && <><h4 style={{ margin: '12px 0 6px' }}>Vehicle computer messages</h4>{v.diagnosticCodes.map(c => <div key={c.code} className="small" style={{ marginBottom: 6 }}><span className="mono">{c.code}</span> {c.description} · {c.status}<div className="faint">{c.explanation}</div></div>)}</>}
+          </Card>
+          <Card title="Upcoming appointments">{upcomingAppointments.length ? upcomingAppointments.map(a => <div key={a.number} className="small">{dt(a.startAt)} · {a.serviceRequested || 'Service'} · {label(a.status)}</div>) : <p className="small muted">None scheduled.</p>}</Card>
+          <Card title="Membership value for this vehicle"><div className="small">Savings {money(v.savingsCents)} · retail value of covered services {money(v.retailValueCents)}</div></Card>
+        </div>
+        <Card title="Service history"><Table rows={serviceHistory} rowKey="roNumber" empty="No visits yet" columns={[{ label: 'Visit', render: r => <span className="mono">{r.roNumber}</span> }, { label: 'Date', render: r => d(r.date) }, { label: 'Work', render: r => r.work.join(', ') || '—' }, { label: 'Total', right: true, render: r => (r.totalCents != null ? money(r.totalCents) : '—') }]} /></Card>
+      </>
+    )}</Async>
   );
 };
 
@@ -243,6 +276,7 @@ export const Portal = ({ route }) => {
                 {section === 'appointments' && <Appointments summary={s} />}
                 {section === 'messages' && <Messages />}
                 {section === 'membership' && <Membership summary={s} />}
+                {section === 'health' && <VehicleHealth id={id} />}
                 {section === 'fuel' && <FuelLog summary={s} />}
                 {section === 'account' && <PortalAccount />}
               </>

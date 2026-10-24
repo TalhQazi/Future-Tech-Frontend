@@ -17,6 +17,7 @@ export const VehicleBar = ({ ro }) => {
       </div>
       <div className="ft-kv"><span>Customer</span><strong>{c?.name || '—'}</strong>{!c?.contactRestricted && <span className="row small muted">{c?.phone && <><Phone size={11} />{c.phone}</>}{c?.email && <><Mail size={11} />{c.email}</>}</span>}</div>
       <div className="ft-kv"><span>Repair order</span><strong className="mono">{ro.roNumber}</strong></div>
+      {v?.id && <a className="small" href={`#/app/intelligence/vehicle/${v.id}`}>Vehicle intelligence</a>}
       <div className="ft-kv"><span>Status</span><StatusPill status={ro.status} /></div>
       <div className="ft-kv"><span>Promised</span><strong>{ro.promisedAt ? dt(ro.promisedAt) : '—'}</strong></div>
       {ro.openSafetyEscalations > 0 && <Badge tone="danger"><ShieldAlert size={12} /> {ro.openSafetyEscalations} safety</Badge>}

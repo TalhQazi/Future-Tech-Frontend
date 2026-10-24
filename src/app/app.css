@@ -18,6 +18,8 @@
   --warn-soft: rgba(242, 177, 76, 0.13);
   --danger: #ef5b6c;
   --danger-soft: rgba(239, 91, 108, 0.13);
+  --orange: #f2853a;
+  --violet: #a78bfa;
   --radius: 10px;
   --radius-lg: 14px;
   min-height: 100vh;
@@ -187,3 +189,13 @@
   .ft-top { padding: 10px 12px; }
   .ft .grid-2, .ft .grid-3, .ft .grid-4 { grid-template-columns: 1fr; }
 }
+
+/* Charts (SVG, scaled to container width) */
+.ft-chart { width: 100%; }
+.ft-chart svg { display: block; overflow: visible; }
+.ft-chart text { fill: var(--muted); font-size: 11px; font-family: var(--ft-font-sans); }
+.ft-chart .grid { stroke: var(--line); stroke-width: 1; }
+.ft-chart .zero { stroke: var(--line-2); stroke-width: 1; }
+.ft-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px; font-size: 12px; color: var(--muted); }
+.ft-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.ft-scroll-x { overflow-x: auto; max-width: 100%; }

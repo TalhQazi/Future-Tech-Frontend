@@ -41,7 +41,7 @@ export const Appointments = ({ query }) => {
       <Async state={list}>{rows => (
         <Table rows={rows} empty="No appointments on this day" columns={[
           { label: 'Time', render: a => <strong>{a.scheduledTime}</strong> },
-          { label: 'Customer', render: a => a.customer?.name }, { label: 'Vehicle', render: a => vehicleName(a.vehicle) },
+          { label: 'Customer', render: a => a.customer?.name }, { label: 'Vehicle', render: a => (a.vehicleId ? <a href={`#/app/intelligence/vehicle/${a.vehicleId}`} onClick={e => e.stopPropagation()}>{vehicleName(a.vehicle)}</a> : vehicleName(a.vehicle)) },
           { label: 'Service', render: a => a.serviceRequested || a.concerns?.join('; ') || '—' }, { label: 'Status', render: a => <StatusPill status={a.status} /> },
           { label: '', render: a => (
             <div className="row">

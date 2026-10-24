@@ -6,7 +6,7 @@ import { useAuth } from '../auth.jsx';
 import { Card, PageHeader, Button, Input, Table, StatusPill, Badge, Modal, Alert, Async, Empty, Tabs, useAsync, useAction, useConfirm, money, dt, d, label, vehicleName } from '../ui.jsx';
 import { NewCustomerForm, NewVehicleForm } from './CheckIn.jsx';
 import { SearchPicker } from '../shared.jsx';
-import { MemberValueCard } from './Intelligence.jsx';
+import { MemberValueCard } from './IntelWorkspace.jsx';
 
 const CONSENTS = ['sms_transactional', 'sms_marketing', 'email_transactional', 'email_marketing', 'telematics_collection', 'data_processing'];
 
@@ -66,7 +66,7 @@ const CustomerDetail = ({ id }) => {
             <Table rows={c.recentRepairOrders} onRowClick={r => navigate(`#/app/ro/${r.id}`)} empty="No visits" columns={[{ label: 'RO', render: r => <span className="mono">{r.roNumber}</span> }, { label: 'Status', render: r => <StatusPill status={r.status} /> }, { label: 'Opened', render: r => d(r.createdAt) }]} />
           </Card>
           <Card title="Memberships" actions={can('memberships:sell') && <Button size="sm" onClick={() => navigate(`#/app/memberships?customerId=${id}`)}>Enroll</Button>}>
-            <Table rows={c.memberships} empty="No memberships" columns={[{ label: 'Number', render: m => <span className="mono">{m.number}</span> }, { label: 'Status', render: m => <StatusPill status={m.status} /> }, { label: 'Renews', render: m => d(m.currentPeriodEnd) }]} />
+            <Table rows={c.memberships} empty="No memberships" onRowClick={can('intelligence:vehicle') ? m => navigate(`#/app/intelligence/membership/${m.id}`) : undefined} columns={[{ label: 'Number', render: m => <span className="mono">{m.number}</span> }, { label: 'Status', render: m => <StatusPill status={m.status} /> }, { label: 'Renews', render: m => d(m.currentPeriodEnd) }]} />
           </Card>
         </div>
         <Modal open={addVehicle} title="Add vehicle" size="lg" onClose={() => setAddVehicle(false)}><NewVehicleForm customerId={id} onCreated={() => { setAddVehicle(false); s.reload(); }} /></Modal>
@@ -91,6 +91,7 @@ export const VehicleDetail = ({ id }) => {
         {v.owner && <a href={`#/app/customers/${v.owner.id}`} className="small">← {v.owner.name}</a>}
         <PageHeader title={vehicleName(v)} subtitle={<span className="mono">{v.vin || 'No VIN'} · {v.licensePlate || 'no plate'} · {v.mileage?.toLocaleString()} {v.mileageUnit}</span>} actions={<>
           <Button size="sm" loading={busy} onClick={() => run(async () => setRecalls((await api.get(`/vehicles/${id}/recalls`)).recalls))}><AlertTriangle size={13} />Check NHTSA recalls</Button>
+          {can('intelligence:vehicle') && <Button size="sm" onClick={() => navigate(`#/app/intelligence/vehicle/${id}`)}>Intelligence workspace</Button>}
           {can('vehicles:transfer') && <Button size="sm" onClick={() => setTransfer(true)}>Transfer ownership</Button>}
           {can('vehicles:write') && <Button size="sm" onClick={async () => {
             const odo = window.prompt('Current odometer reading');

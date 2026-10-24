@@ -30,7 +30,7 @@ const PAGES = {
   accounting: [Accounting, 'invoices:read'],
   memberships: [Memberships, 'memberships:read'],
   analytics: [Analytics, 'analytics:location'],
-  intelligence: [Intelligence, 'economics:location'],
+  intelligence: [Intelligence, 'intelligence:vehicle'],
   techdata: [TechData, 'techdata:read'],
   fixes: [Fixes, 'fixes:read'],
   'parts-intel': [PartsIntel, 'parts_intel:read'],
