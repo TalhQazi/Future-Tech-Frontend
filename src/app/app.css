@@ -320,3 +320,130 @@
   .ft-print { position: absolute; inset: 0; padding: 24px; background: #fff; color: #000; }
   .ft-overlay { background: none; }
 }
+
+/* ---- Bug Panel & Task Manager ---- */
+.ft-bug-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(220, 38, 38, 0.18);
+  border: 1px solid rgba(220, 38, 38, 0.4);
+  color: #ff9494 !important;
+  border-radius: 8px;
+  padding: 0 10px;
+  height: 32px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.ft-bug-trigger:hover {
+  background: rgba(220, 38, 38, 0.35);
+  border-color: rgba(220, 38, 38, 0.6);
+  color: #fff !important;
+}
+
+.ft-kanban {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+.ft-kanban-col {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 270px);
+}
+.ft-kanban-head {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+}
+.ft-kanban-head h4 {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ft-kanban-body {
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ft-bug-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ft-bug-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  border-color: rgba(29, 111, 242, 0.4);
+}
+.ft-bug-card.critical {
+  border-left: 4px solid var(--danger);
+}
+.ft-bug-card.high {
+  border-left: 4px solid var(--orange);
+}
+.ft-bug-card.medium {
+  border-left: 4px solid var(--warn);
+}
+.ft-bug-card.low {
+  border-left: 4px solid var(--ok);
+}
+
+.ft-timeline-item {
+  position: relative;
+  padding-left: 24px;
+  padding-bottom: 16px;
+  border-left: 2px solid var(--line);
+}
+.ft-timeline-item:last-child {
+  border-left-color: transparent;
+  padding-bottom: 0;
+}
+.ft-timeline-dot {
+  position: absolute;
+  left: -7px;
+  top: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px var(--line-2);
+}
+
+.ft-comment-box {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ft-comment-box.deleted {
+  background: var(--surface-2);
+  opacity: 0.7;
+}
+

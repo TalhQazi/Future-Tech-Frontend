@@ -106,6 +106,8 @@ export const api = {
   get: (path, query) => request('GET', path, { query }),
   post: (path, body = {}, opts = {}) => request('POST', path, { body, ...opts }),
   put: (path, body = {}, opts = {}) => request('PUT', path, { body, ...opts }),
+  del: (path, opts = {}) => request('DELETE', path, opts),
+  delete: (path, opts = {}) => request('DELETE', path, opts),
   patch: (path, body = {}, opts = {}) => request('PATCH', path, { body, ...opts }),
   upload: (path, form, opts = {}) => request('POST', path, { form, ...opts }),
   blob: async (path) => (await request('GET', path, { raw: true })).blob(),

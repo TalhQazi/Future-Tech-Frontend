@@ -2,13 +2,14 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from '
 import {
   LayoutDashboard, ClipboardList, Calendar, Users, Car, Wrench, Truck, Package, Receipt, Heart, MessageSquare,
   Cpu, BookOpen, CheckCircle2, BarChart3, Settings, Bell, LogOut, Menu, UserCircle, Activity, Gauge, MessagesSquare,
-  Crown, Search, Plus, Boxes
+  Crown, Search, Plus, Boxes, Bug
 } from 'lucide-react';
 import { api } from '../api/client.js';
 import { navigate } from '../router.js';
 import { useAuth } from './auth.jsx';
 import { Button, Badge, Drawer, Empty, dt, useAsync, vehicleName } from './ui.jsx';
 import { useOfflineQueue } from './offline.js';
+import { BugReportModal } from './BugReportModal.jsx';
 
 const WorkspaceCtx = createContext(null);
 export const useWorkspace = () => useContext(WorkspaceCtx);
@@ -109,6 +110,7 @@ export const Shell = ({ section, children }) => {
   const { user, logout, can } = useAuth();
   const [open, setOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
+  const [bugModalOpen, setBugModalOpen] = useState(false);
   const [quick, setQuick] = useState('');
   const locations = useAsync(() => api.get('/locations').then(r => r.locations), []);
   const [locationId, setLocationIdState] = useState(() => localStorage.getItem('ft_location') || '');
@@ -153,6 +155,16 @@ export const Shell = ({ section, children }) => {
             )}
             {offline.pending > 0 && <span className="ft-sync"><span className={`ft-dot ${offline.online ? 'warn' : 'danger'}`} />{offline.pending} to sync</span>}
             {offline.failed > 0 && <Button size="sm" variant="danger" onClick={() => navigate('#/app/account')}>{offline.failed} sync error(s)</Button>}
+            <button
+              type="button"
+              className="ft-bug-trigger"
+              onClick={() => setBugModalOpen(true)}
+              title="Report a bug or defect"
+              aria-label="Report a bug"
+            >
+              <Bug size={15} />
+              <span>Report Bug</span>
+            </button>
             <Button variant="ghost" className="ft-bell" onClick={() => setNotesOpen(true)} aria-label={`Notifications (${unread} unread)`}><Bell size={18} />{unread > 0 && <Badge tone="danger">{unread}</Badge>}</Button>
             <a className="ft-user" href="#/app/account" title={`${user.name} · ${user.role}`}><span className="ft-avatar">{initials(user.name)}</span><span>{user.name.split(' ')[0]}</span></a>
             <Button variant="ghost" onClick={logout} aria-label="Sign out"><LogOut size={16} /></Button>
@@ -193,6 +205,11 @@ export const Shell = ({ section, children }) => {
             </a>
           ))}
         </Drawer>
+        <BugReportModal
+          open={bugModalOpen}
+          onClose={() => setBugModalOpen(false)}
+          currentSection={section}
+        />
       </div>
     </WorkspaceCtx.Provider>
   );
