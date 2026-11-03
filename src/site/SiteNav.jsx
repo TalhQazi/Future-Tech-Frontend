@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowUpRight, Menu, X } from 'lucide-react';
+import { ArrowUpRight, Menu, X, Bug } from 'lucide-react';
+import { BugReportModal } from '../app/BugReportModal.jsx';
 import { BrandLogo } from '../components/BrandLogo.jsx';
 import { NAV_LINKS } from './content.js';
 import { useScrollSpy } from './motion.js';
@@ -7,6 +8,7 @@ import { useScrollSpy } from './motion.js';
 export const SiteNav = () => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [bugModalOpen, setBugModalOpen] = useState(false);
   const active = useScrollSpy();
   const toggleRef = useRef(null);
   const panelRef = useRef(null);
@@ -71,6 +73,16 @@ export const SiteNav = () => {
         </nav>
 
         <div className="site-nav__actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            type="button"
+            className="ft-bug-trigger"
+            onClick={() => setBugModalOpen(true)}
+            title="Report a defect or issue"
+            aria-label="Report a bug"
+          >
+            <Bug size={14} />
+            <span>Report Bug</span>
+          </button>
           <a
             href="#/login"
             className="site-nav__link"
@@ -150,6 +162,11 @@ export const SiteNav = () => {
         aria-hidden="true"
         tabIndex={-1}
         onClick={close}
+      />
+      <BugReportModal
+        open={bugModalOpen}
+        onClose={() => setBugModalOpen(false)}
+        currentSection="landing-page"
       />
     </header>
   );
